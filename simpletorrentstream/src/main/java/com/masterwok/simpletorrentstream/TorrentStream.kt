@@ -22,8 +22,9 @@ class TorrentStream(
     }
 
 
-    private var torrentStreamListener: TorrentStreamListener? = null
+    // TODO: Indexes missing when torrent was started previously.
     private val downloadedPieceIndexes: ArrayList<Int> = ArrayList()
+    private var torrentStreamListener: TorrentStreamListener? = null
     private val sessionManager = SessionManager()
     private val dhtLock = Object()
 
