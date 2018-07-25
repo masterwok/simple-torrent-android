@@ -6,7 +6,7 @@ import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.SessionManager
 import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.alerts.*
-import com.masterwok.simpletorrentstream.contracts.TorrentStreamListener
+import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentstream.extensions.ignoreAllFiles
 import com.masterwok.simpletorrentstream.extensions.prioritizeLargestFile
 import com.masterwok.simpletorrentstream.extensions.setBufferPriorities
@@ -14,6 +14,8 @@ import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import java.net.URLDecoder
 
 
+// TODO: Add remove torrent method.
+// TODO: Implement multiple torrent downloads.
 class TorrentSession(
         private val torrentSessionOptions: TorrentSessionOptions
 ) {
@@ -23,7 +25,7 @@ class TorrentSession(
 
     // TODO: Indexes missing when torrent was started previously.
     private val downloadedPieceIndexes: ArrayList<Int> = ArrayList()
-    private var torrentStreamListener: TorrentStreamListener? = null
+    private var torrentSessionListener: TorrentSessionListener? = null
     private val sessionManager = SessionManager()
     private val dhtLock = Object()
 
@@ -31,52 +33,80 @@ class TorrentSession(
     // TODO: It appears add/remove events are being dispatched multiple times.
     private val alertListener = object : AlertListener {
         override fun alert(alert: Alert<*>) {
-            Log.d("NON HANDLED ALERT", alert.toString())
             when (alert.type()) {
                 AlertType.DHT_BOOTSTRAP -> onDhtBootstrap()
                 AlertType.DHT_STATS -> onDhtStats()
                 AlertType.METADATA_RECEIVED -> onMetadataReceived(alert as MetadataReceivedAlert)
                 AlertType.METADATA_FAILED -> onMetadataFailed(alert as MetadataFailedAlert)
                 AlertType.PIECE_FINISHED -> onPieceFinished(alert as PieceFinishedAlert)
-                AlertType.TORRENT_DELETE_FAILED -> TODO()
-                AlertType.TORRENT_NEED_CERT -> TODO()
-                AlertType.TORRENT_CHECKED -> TODO()
-                AlertType.TORRENT_DELETED -> TODO()
-                AlertType.TORRENT_REMOVED -> TODO()
-                AlertType.TORRENT_RESUMED -> TODO()
-                AlertType.TORRENT_PAUSED -> TODO()
+                AlertType.TORRENT_DELETE_FAILED -> onTorrentDeleteFailed(alert as TorrentDeleteFailedAlert)
+                AlertType.TORRENT_DELETED -> onTorrentDeleted(alert as TorrentDeletedAlert)
+                AlertType.TORRENT_REMOVED -> onTorrentRemoved(alert as TorrentRemovedAlert)
+                AlertType.TORRENT_RESUMED -> onTorrentResumed(alert as TorrentResumedAlert)
+                AlertType.TORRENT_PAUSED -> onTorrentPaused(alert as TorrentPausedAlert)
                 AlertType.TORRENT_FINISHED -> onTorrentFinished(alert as TorrentFinishedAlert)
                 AlertType.TORRENT_ERROR -> onTorrentError(alert as TorrentErrorAlert)
                 AlertType.ADD_TORRENT -> onAddTorrent(alert as AddTorrentAlert)
+                else -> Log.d("NON HANDLED ALERT", alert.toString())
             }
         }
 
         override fun types(): IntArray? = null
     }
 
-    private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
-        Log.d("onMetadataReceived", "Metadata Received")
-
-        val torrentHandle = metadataReceivedAlert.handle()
-        val torrentInfo = torrentHandle.torrentFile()
-
-        torrentStreamListener?.onMetadataReceived(createTorrentStreamInstance(torrentHandle))
-
-        sessionManager.download(torrentInfo, torrentSessionOptions.downloadLocation)
-    }
-
-    private fun createTorrentStreamInstance(torrentHandle: TorrentHandle) =
+    private fun createTorrentSessionStatus(torrentHandle: TorrentHandle) =
             TorrentSessionStatus.createInstance(
                     torrentHandle
                     , downloadedPieceIndexes
             )
+
+    private fun onTorrentDeleteFailed(torrentDeleteFailedAlert: TorrentDeleteFailedAlert) {
+        val torrentHandle = torrentDeleteFailedAlert.handle()
+
+        torrentSessionListener?.onTorrentDeleteFailed(createTorrentSessionStatus(torrentHandle))
+    }
+
+    private fun onTorrentPaused(torrentPausedAlert: TorrentPausedAlert) {
+        val torrentHandle = torrentPausedAlert.handle()
+
+        torrentSessionListener?.onTorrentPaused(createTorrentSessionStatus(torrentHandle))
+    }
+
+    private fun onTorrentResumed(torrentResumedAlert: TorrentResumedAlert) {
+        val torrentHandle = torrentResumedAlert.handle()
+
+        torrentSessionListener?.onTorrentResumed(createTorrentSessionStatus(torrentHandle))
+    }
+
+    private fun onTorrentRemoved(torrentRemovedAlert: TorrentRemovedAlert) {
+        val torrentHandle = torrentRemovedAlert.handle()
+
+        torrentSessionListener?.onTorrentRemoved(createTorrentSessionStatus(torrentHandle))
+    }
+
+    private fun onTorrentDeleted(torrentDeletedAlert: TorrentDeletedAlert) {
+        val torrentHandle = torrentDeletedAlert.handle()
+
+        torrentSessionListener?.onTorrentDeleted(createTorrentSessionStatus(torrentHandle))
+    }
+
+    private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
+        val torrentHandle = metadataReceivedAlert.handle()
+
+        torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
+
+        sessionManager.download(
+                torrentHandle.torrentFile()
+                , torrentSessionOptions.downloadLocation
+        )
+    }
 
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
 
         downloadedPieceIndexes.add(pieceFinishedAlert.pieceIndex())
 
-        torrentStreamListener?.onPieceFinished(createTorrentStreamInstance(torrentHandle))
+        torrentSessionListener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
 
         torrentHandle.setBufferPriorities(MaxPrioritizedPieceCount)
     }
@@ -86,7 +116,7 @@ class TorrentSession(
 
         downloadedPieceIndexes.clear()
 
-        torrentStreamListener?.onAddTorrent(createTorrentStreamInstance(torrentHandle))
+        torrentSessionListener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
 
         torrentHandle.ignoreAllFiles()
         torrentHandle.prioritizeLargestFile(Priority.NORMAL)
@@ -98,18 +128,18 @@ class TorrentSession(
     }
 
     private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) =
-            torrentStreamListener?.onTorrentError(
-                    createTorrentStreamInstance(torrentErrorAlert.handle())
+            torrentSessionListener?.onTorrentError(
+                    createTorrentSessionStatus(torrentErrorAlert.handle())
             )
 
     private fun onTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) =
-            torrentStreamListener?.onTorrentFinished(
-                    createTorrentStreamInstance(torrentFinishedAlert.handle())
+            torrentSessionListener?.onTorrentFinished(
+                    createTorrentSessionStatus(torrentFinishedAlert.handle())
             )
 
     private fun onMetadataFailed(metadataFailedAlert: MetadataFailedAlert) =
-            torrentStreamListener?.onMetadataFailed(
-                    createTorrentStreamInstance(metadataFailedAlert.handle())
+            torrentSessionListener?.onMetadataFailed(
+                    createTorrentSessionStatus(metadataFailedAlert.handle())
             )
 
     private fun onDhtStats() {
@@ -155,8 +185,8 @@ class TorrentSession(
         )
     }
 
-    fun setListener(torrentStreamListener: TorrentStreamListener?) {
-        this.torrentStreamListener = torrentStreamListener
+    fun setListener(torrentSessionListener: TorrentSessionListener?) {
+        this.torrentSessionListener = torrentSessionListener
     }
 
 }

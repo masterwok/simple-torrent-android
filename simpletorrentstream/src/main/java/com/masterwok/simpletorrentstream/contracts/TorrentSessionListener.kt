@@ -2,7 +2,7 @@ package com.masterwok.simpletorrentstream.contracts
 
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 
-interface TorrentStreamListener {
+interface TorrentSessionListener {
 
     fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus)
 
@@ -15,5 +15,15 @@ interface TorrentStreamListener {
     fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus)
 
     fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus)
+
+    fun onTorrentDeleteFailed(torrentSessionStatus: TorrentSessionStatus)
+
+    fun onTorrentPaused(torrentSessionStatus: TorrentSessionStatus)
+
+    fun onTorrentDeleted(torrentSessionStatus: TorrentSessionStatus)
+
+    fun onTorrentRemoved(torrentSessionStatus: TorrentSessionStatus)
+
+    fun onTorrentResumed(torrentSessionStatus: TorrentSessionStatus)
 
 }

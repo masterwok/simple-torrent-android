@@ -12,5 +12,3 @@ internal fun TorrentInfo.getLargestFileIndex(): Int = files().getLargestFileInde
  * Get the file name of the largest file of the [TorrentInfo].
  */
 internal fun TorrentInfo.getLargestFileName(): String = files().fileName(getLargestFileIndex())
-
-

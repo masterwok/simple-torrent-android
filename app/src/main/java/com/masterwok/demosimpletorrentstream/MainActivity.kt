@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.masterwok.simpletorrentstream.TorrentSession
 import com.masterwok.simpletorrentstream.TorrentSessionOptions
-import com.masterwok.simpletorrentstream.contracts.TorrentStreamListener
+import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentstream.extensions.appCompatRequestPermissions
 import com.masterwok.simpletorrentstream.extensions.isPermissionGranted
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
@@ -38,27 +38,42 @@ class MainActivity : AppCompatActivity() {
         startDownload()
     }
 
-    private val torrentStreamListener = object : TorrentStreamListener {
+    private val torrentStreamListener = object : TorrentSessionListener {
+
+        override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
+                log("onAddTorrent", torrentSessionStatus)
+
+        override fun onTorrentRemoved(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentRemoved", torrentSessionStatus)
+
+        override fun onTorrentDeleted(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentRemoved", torrentSessionStatus)
+
+        override fun onTorrentDeleteFailed(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentDeleteFailed", torrentSessionStatus)
 
         override fun onTorrentError(torrentSessionStatus: TorrentSessionStatus) =
                 log("onTorrentError", torrentSessionStatus)
 
+        override fun onTorrentResumed(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentResumed", torrentSessionStatus)
+
+        override fun onTorrentPaused(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentPaused", torrentSessionStatus)
+
         // TODO: Fix state when stream has already been downloaded (see logs).
         override fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus) =
                 log("onTorrentFinished", torrentSessionStatus)
+
+        // TODO: Ensure piece count is correct on finish (see logs).
+        override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
+                log("onPieceFinished", torrentSessionStatus)
 
         override fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus) =
                 log("onMetadataFailed", torrentSessionStatus)
 
         override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
                 log("onMetadataReceived", torrentSessionStatus)
-
-        override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
-                log("onAddTorrent", torrentSessionStatus)
-
-        // TODO: Ensure piece count is corrent on finish (see logs).
-        override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
-                log("onPieceFinished", torrentSessionStatus)
 
         private fun log(
                 tag: String
