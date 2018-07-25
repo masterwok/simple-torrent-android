@@ -2,9 +2,7 @@ package com.masterwok.simpletorrentstream.models
 
 import android.net.Uri
 import com.frostwire.jlibtorrent.TorrentHandle
-import com.masterwok.simpletorrentstream.extensions.getFirstMissingPieceIndex
-import com.masterwok.simpletorrentstream.extensions.getLargestFileUri
-import com.masterwok.simpletorrentstream.extensions.getSaveLocation
+import com.masterwok.simpletorrentstream.extensions.*
 
 @Suppress("unused")
 class TorrentStreamStatus private constructor(
@@ -22,22 +20,17 @@ class TorrentStreamStatus private constructor(
         fun createInstance(
                 torrentHandle: TorrentHandle
                 , downloadedPieceIndexes: List<Int>
-        ): TorrentStreamStatus {
-            val torrentInfo = torrentHandle.torrentFile()
-            val status = torrentHandle.status()
-
-            return TorrentStreamStatus(
-                    status.isFinished
-                    , status.progress()
-                    , status.totalDone()
-                    , status.totalWanted()
-                    , torrentHandle.getLargestFileUri()
-                    , torrentHandle.getSaveLocation()
-                    , torrentHandle.getFirstMissingPieceIndex()
-                    , downloadedPieceIndexes
-                    , torrentInfo.numPieces()
-            )
-        }
+        ): TorrentStreamStatus = TorrentStreamStatus(
+                torrentHandle.isFinished()
+                , torrentHandle.getProgress()
+                , torrentHandle.getTotalDone()
+                , torrentHandle.getTotalWanted()
+                , torrentHandle.getLargestFileUri()
+                , torrentHandle.getSaveLocation()
+                , torrentHandle.getFirstMissingPieceIndex()
+                , downloadedPieceIndexes
+                , torrentHandle.getPieceCount()
+        )
     }
 }
 

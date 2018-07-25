@@ -6,6 +6,31 @@ import com.frostwire.jlibtorrent.TorrentHandle
 
 
 /**
+ * Get the total number of pieces of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getPieceCount(): Int = torrentFile().numPieces()
+
+/**
+ * Get the total bytes wanted (to be downloaded) of the [TorrentHandle].
+ */
+internal fun TorrentHandle.isFinished(): Boolean = status().isFinished
+
+/**
+ * Get the total bytes wanted (to be downloaded) of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getTotalWanted(): Long = status().totalWanted()
+
+/**
+ * Get the total bytes done (downloaded) of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getTotalDone(): Long = status().totalDone()
+
+/**
+ * Get the progress of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getProgress(): Float = status().progress()
+
+/**
  * Get the save location of the [TorrentHandle].
  */
 internal fun TorrentHandle.getSaveLocation(): Uri = Uri.parse("${savePath()}/${name()}")
