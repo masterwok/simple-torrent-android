@@ -47,7 +47,10 @@ class TabFragmentManager<T : Any> constructor(
             .getTitle()
 
     /**
-     * Configure all fragments using the provided [model].
+     * Configure all fragments using the provided [model]. Normally state
+     * changes should be done within the fragment. However, this is useful
+     * for when the state changes come from the parent activity or fragment
+     * containing the adapter utilizing this manager.
      */
     fun configure(model: T) = tabInstanceMapping.values.forEach {
         it.configure(model)
