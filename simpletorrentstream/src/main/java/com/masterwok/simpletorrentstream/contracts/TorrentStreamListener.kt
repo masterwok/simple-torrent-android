@@ -1,19 +1,19 @@
 package com.masterwok.simpletorrentstream.contracts
 
-import com.masterwok.simpletorrentstream.models.TorrentStreamStatus
+import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 
 interface TorrentStreamListener {
 
-    fun onPieceFinished(torrentStreamStatus: TorrentStreamStatus)
+    fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus)
 
-    fun onAddTorrent(torrentStreamStatus: TorrentStreamStatus)
+    fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus)
 
-    fun onTorrentError(torrentStreamStatus: TorrentStreamStatus)
+    fun onTorrentError(torrentSessionStatus: TorrentSessionStatus)
 
-    fun onTorrentFinished(torrentStreamStatus: TorrentStreamStatus)
+    fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus)
 
-    fun onMetadataFailed(torrentStreamStatus: TorrentStreamStatus)
+    fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus)
 
-    fun onMetadataReceived(torrentStreamStatus: TorrentStreamStatus)
+    fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus)
 
 }

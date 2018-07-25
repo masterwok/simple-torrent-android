@@ -4,7 +4,7 @@ import com.frostwire.jlibtorrent.SessionParams
 import com.frostwire.jlibtorrent.SettingsPack
 import java.io.File
 
-data class TorrentStreamOptions(
+data class TorrentSessionOptions(
         var downloadLocation: File
 ) {
     private val settingsPack = SettingsPack()
@@ -16,7 +16,7 @@ data class TorrentStreamOptions(
     class Builder {
         private lateinit var downloadLocation: File
 
-        fun build(): TorrentStreamOptions = TorrentStreamOptions(
+        fun build(): TorrentSessionOptions = TorrentSessionOptions(
                 downloadLocation
         )
 

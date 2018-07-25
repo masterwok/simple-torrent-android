@@ -5,12 +5,12 @@ import android.os.Bundle
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import com.masterwok.simpletorrentstream.TorrentStream
-import com.masterwok.simpletorrentstream.TorrentStreamOptions
+import com.masterwok.simpletorrentstream.TorrentSession
+import com.masterwok.simpletorrentstream.TorrentSessionOptions
 import com.masterwok.simpletorrentstream.contracts.TorrentStreamListener
 import com.masterwok.simpletorrentstream.extensions.appCompatRequestPermissions
 import com.masterwok.simpletorrentstream.extensions.isPermissionGranted
-import com.masterwok.simpletorrentstream.models.TorrentStreamStatus
+import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import kotlinx.coroutines.experimental.launch
 
 class MainActivity : AppCompatActivity() {
@@ -40,37 +40,37 @@ class MainActivity : AppCompatActivity() {
 
     private val torrentStreamListener = object : TorrentStreamListener {
 
-        override fun onTorrentError(torrentStreamStatus: TorrentStreamStatus) =
-                log("onTorrentError", torrentStreamStatus)
+        override fun onTorrentError(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentError", torrentSessionStatus)
 
         // TODO: Fix state when stream has already been downloaded (see logs).
-        override fun onTorrentFinished(torrentStreamStatus: TorrentStreamStatus) =
-                log("onTorrentFinished", torrentStreamStatus)
+        override fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus) =
+                log("onTorrentFinished", torrentSessionStatus)
 
-        override fun onMetadataFailed(torrentStreamStatus: TorrentStreamStatus) =
-                log("onMetadataFailed", torrentStreamStatus)
+        override fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus) =
+                log("onMetadataFailed", torrentSessionStatus)
 
-        override fun onMetadataReceived(torrentStreamStatus: TorrentStreamStatus) =
-                log("onMetadataReceived", torrentStreamStatus)
+        override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
+                log("onMetadataReceived", torrentSessionStatus)
 
-        override fun onAddTorrent(torrentStreamStatus: TorrentStreamStatus) =
-                log("onAddTorrent", torrentStreamStatus)
+        override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
+                log("onAddTorrent", torrentSessionStatus)
 
         // TODO: Ensure piece count is corrent on finish (see logs).
-        override fun onPieceFinished(torrentStreamStatus: TorrentStreamStatus) =
-                log("onPieceFinished", torrentStreamStatus)
+        override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
+                log("onPieceFinished", torrentSessionStatus)
 
         private fun log(
                 tag: String
-                , torrentStreamStatus: TorrentStreamStatus
+                , torrentSessionStatus: TorrentSessionStatus
         ) {
             Log.d(
                     tag
-                    , "| Total Pieces: ${torrentStreamStatus.totalPieces}"
-                    + ", Piece: ${torrentStreamStatus.downloadedPieces.size}/${torrentStreamStatus.totalPieces}"
-                    + ", First Missing Piece Index: ${torrentStreamStatus.firstMissingPieceIndex}"
-                    + ", Progress: ${torrentStreamStatus.bytesDownloaded}/${torrentStreamStatus.bytesWanted} (${torrentStreamStatus.progress * 100}%)"
-                    + ", Is Finished: ${torrentStreamStatus.isFinished}"
+                    , "| Total Pieces: ${torrentSessionStatus.totalPieces}"
+                    + ", Piece: ${torrentSessionStatus.downloadedPieces.size}/${torrentSessionStatus.totalPieces}"
+                    + ", First Missing Piece Index: ${torrentSessionStatus.firstMissingPieceIndex}"
+                    + ", Progress: ${torrentSessionStatus.bytesDownloaded}/${torrentSessionStatus.bytesWanted} (${torrentSessionStatus.progress * 100}%)"
+                    + ", Is Finished: ${torrentSessionStatus.isFinished}"
             )
         }
 
@@ -81,12 +81,12 @@ class MainActivity : AppCompatActivity() {
 //        val magnetUri = "magnet:?xt=urn:btih:1815a467da2820aea936b622c09966abed626c9c&dn=Alien.1979.Directors.Cut.1080p.BluRay.H264.AAC-RARBG&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969"
         val magnetUri = "magnet:?xt=urn:btih:2d6354d22bbda47b22ab65066b8736d9851bb493&dn=Grandmas+Boy+UNRATED+2006+720p+WEB-DL+x264+AAC+-+Ozlem&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969"
 
-        val options = TorrentStreamOptions
+        val options = TorrentSessionOptions
                 .Builder()
                 .setDownloadLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
                 .build()
 
-        val torrentStream = TorrentStream(options)
+        val torrentStream = TorrentSession(options)
 
         torrentStream.setListener(torrentStreamListener)
 

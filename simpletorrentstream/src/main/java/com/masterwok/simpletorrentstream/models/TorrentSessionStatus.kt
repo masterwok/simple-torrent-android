@@ -5,7 +5,7 @@ import com.frostwire.jlibtorrent.TorrentHandle
 import com.masterwok.simpletorrentstream.extensions.*
 
 @Suppress("unused")
-class TorrentStreamStatus private constructor(
+class TorrentSessionStatus private constructor(
         val isFinished: Boolean
         , val progress: Float
         , val bytesDownloaded: Long
@@ -20,7 +20,7 @@ class TorrentStreamStatus private constructor(
         fun createInstance(
                 torrentHandle: TorrentHandle
                 , downloadedPieceIndexes: List<Int>
-        ): TorrentStreamStatus = TorrentStreamStatus(
+        ): TorrentSessionStatus = TorrentSessionStatus(
                 torrentHandle.isFinished()
                 , torrentHandle.getProgress()
                 , torrentHandle.getTotalDone()

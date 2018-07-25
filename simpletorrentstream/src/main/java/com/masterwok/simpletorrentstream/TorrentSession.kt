@@ -10,12 +10,12 @@ import com.masterwok.simpletorrentstream.contracts.TorrentStreamListener
 import com.masterwok.simpletorrentstream.extensions.ignoreAllFiles
 import com.masterwok.simpletorrentstream.extensions.prioritizeLargestFile
 import com.masterwok.simpletorrentstream.extensions.setBufferPriorities
-import com.masterwok.simpletorrentstream.models.TorrentStreamStatus
+import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import java.net.URLDecoder
 
 
-class TorrentStream(
-        private val torrentStreamOptions: TorrentStreamOptions
+class TorrentSession(
+        private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
         private const val MaxPrioritizedPieceCount = 8
@@ -62,11 +62,11 @@ class TorrentStream(
 
         torrentStreamListener?.onMetadataReceived(createTorrentStreamInstance(torrentHandle))
 
-        sessionManager.download(torrentInfo, torrentStreamOptions.downloadLocation)
+        sessionManager.download(torrentInfo, torrentSessionOptions.downloadLocation)
     }
 
     private fun createTorrentStreamInstance(torrentHandle: TorrentHandle) =
-            TorrentStreamStatus.createInstance(
+            TorrentSessionStatus.createInstance(
                     torrentHandle
                     , downloadedPieceIndexes
             )
@@ -128,7 +128,7 @@ class TorrentStream(
 
     init {
         sessionManager.addListener(alertListener)
-        sessionManager.start(torrentStreamOptions.build())
+        sessionManager.start(torrentSessionOptions.build())
     }
 
     private fun isDhtReady() = sessionManager
