@@ -83,6 +83,7 @@ internal fun TorrentHandle.getFirstMissingPieceIndex(
  * download priority. Each of the n pieces will be a piece between the first non-downloaded,
  * non-ignored piece index + [bufferSize].
  */
+// TODO: Cache first and last indexe of the piece range.
 internal fun TorrentHandle.setBufferPriorities(
         bufferSize: Int
 ) {

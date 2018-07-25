@@ -21,7 +21,6 @@ class TorrentStream(
         private const val MaxPrioritizedPieceCount = 8
     }
 
-
     // TODO: Indexes missing when torrent was started previously.
     private val downloadedPieceIndexes: ArrayList<Int> = ArrayList()
     private var torrentStreamListener: TorrentStreamListener? = null
@@ -29,6 +28,7 @@ class TorrentStream(
     private val dhtLock = Object()
 
 
+    // TODO: It appears add/remove events are being dispatched multiple times.
     private val alertListener = object : AlertListener {
         override fun alert(alert: Alert<*>) {
             Log.d("NON HANDLED ALERT", alert.toString())
@@ -87,8 +87,6 @@ class TorrentStream(
         downloadedPieceIndexes.clear()
 
         torrentStreamListener?.onAddTorrent(createTorrentStreamInstance(torrentHandle))
-
-        // TODO: Need to clear normal state once first and last piece indexes are determined.
 
         torrentHandle.ignoreAllFiles()
         torrentHandle.prioritizeLargestFile(Priority.NORMAL)

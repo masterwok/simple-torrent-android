@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             Log.d(
                     tag
-                    , "| Piece Count: ${torrentStreamStatus.totalPieces}"
+                    , "| Total Pieces: ${torrentStreamStatus.totalPieces}"
                     + ", Piece: ${torrentStreamStatus.downloadedPieces.size}/${torrentStreamStatus.totalPieces}"
                     + ", First Missing Piece Index: ${torrentStreamStatus.firstMissingPieceIndex}"
                     + ", Progress: ${torrentStreamStatus.bytesDownloaded}/${torrentStreamStatus.bytesWanted} (${torrentStreamStatus.progress * 100}%)"
