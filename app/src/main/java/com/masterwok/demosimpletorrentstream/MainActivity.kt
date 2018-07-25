@@ -39,14 +39,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val torrentStreamListener = object : TorrentStreamListener {
-        override fun onPieceFinished(torrentStreamStatus: TorrentStreamStatus) {
+
+        override fun onTorrentError(torrentStreamStatus: TorrentStreamStatus) =
+                log("onTorrentError", torrentStreamStatus)
+
+        // TODO: Fix state when stream has already been downloaded (see logs).
+        override fun onTorrentFinished(torrentStreamStatus: TorrentStreamStatus) =
+                log("onTorrentFinished", torrentStreamStatus)
+
+        override fun onMetadataFailed(torrentStreamStatus: TorrentStreamStatus) =
+                log("onMetadataFailed", torrentStreamStatus)
+
+        override fun onMetadataReceived(torrentStreamStatus: TorrentStreamStatus) =
+                log("onMetadataReceived", torrentStreamStatus)
+
+        override fun onAddTorrent(torrentStreamStatus: TorrentStreamStatus) =
+                log("onAddTorrent", torrentStreamStatus)
+
+        // TODO: Ensure piece count is corrent on finish (see logs).
+        override fun onPieceFinished(torrentStreamStatus: TorrentStreamStatus) =
+                log("onPieceFinished", torrentStreamStatus)
+
+        private fun log(
+                tag: String
+                , torrentStreamStatus: TorrentStreamStatus
+        ) {
             Log.d(
-                    "onPieceFinished",
-                    "| Piece Count: ${torrentStreamStatus.totalPieces}"
-                            + ", Piece: ${torrentStreamStatus.downloadedPieces.size}/${torrentStreamStatus.totalPieces}"
-                            + ", First Missing Piece Index: ${torrentStreamStatus.firstMissingPieceIndex}"
-                            + ", Progress: ${torrentStreamStatus.bytesDownloaded}/${torrentStreamStatus.bytesWanted} (${torrentStreamStatus.progress}%)"
-                            + ", Is Finished: ${torrentStreamStatus.isFinished}"
+                    tag
+                    , "| Piece Count: ${torrentStreamStatus.totalPieces}"
+                    + ", Piece: ${torrentStreamStatus.downloadedPieces.size}/${torrentStreamStatus.totalPieces}"
+                    + ", First Missing Piece Index: ${torrentStreamStatus.firstMissingPieceIndex}"
+                    + ", Progress: ${torrentStreamStatus.bytesDownloaded}/${torrentStreamStatus.bytesWanted} (${torrentStreamStatus.progress * 100}%)"
+                    + ", Is Finished: ${torrentStreamStatus.isFinished}"
             )
         }
 

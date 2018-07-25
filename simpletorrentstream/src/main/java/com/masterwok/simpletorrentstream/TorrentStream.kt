@@ -32,23 +32,21 @@ class TorrentStream(
         override fun alert(alert: Alert<*>) {
             Log.d("NON HANDLED ALERT", alert.toString())
             when (alert.type()) {
-                AlertType.DHT_BOOTSTRAP -> onDhtBootstrap(alert as DhtBootstrapAlert)
-                AlertType.DHT_STATS -> onDhtStats(alert as DhtStatsAlert)
-                AlertType.METADATA_FAILED -> onMetadataFailed(alert as MetadataFailedAlert)
+                AlertType.DHT_BOOTSTRAP -> onDhtBootstrap()
+                AlertType.DHT_STATS -> onDhtStats()
                 AlertType.METADATA_RECEIVED -> onMetadataReceived(alert as MetadataReceivedAlert)
-                AlertType.TORRENT_REMOVED -> TODO()
-                AlertType.TORRENT_DELETED -> TODO()
-                AlertType.TORRENT_PAUSED -> TODO()
-                AlertType.TORRENT_RESUMED -> TODO()
-                AlertType.TORRENT_CHECKED -> TODO()
-                AlertType.TORRENT_NEED_CERT -> TODO()
+                AlertType.METADATA_FAILED -> onMetadataFailed(alert as MetadataFailedAlert)
+                AlertType.PIECE_FINISHED -> onPieceFinished(alert as PieceFinishedAlert)
                 AlertType.TORRENT_DELETE_FAILED -> TODO()
-                AlertType.ADD_TORRENT -> onAddTorrent(alert as AddTorrentAlert)
+                AlertType.TORRENT_NEED_CERT -> TODO()
+                AlertType.TORRENT_CHECKED -> TODO()
+                AlertType.TORRENT_DELETED -> TODO()
+                AlertType.TORRENT_REMOVED -> TODO()
+                AlertType.TORRENT_RESUMED -> TODO()
+                AlertType.TORRENT_PAUSED -> TODO()
                 AlertType.TORRENT_FINISHED -> onTorrentFinished(alert as TorrentFinishedAlert)
                 AlertType.TORRENT_ERROR -> onTorrentError(alert as TorrentErrorAlert)
-                AlertType.TORRENT_LOG -> onTorrentLog(alert as TorrentLogAlert)
-                AlertType.PIECE_FINISHED -> onPieceFinished(alert as PieceFinishedAlert)
-                AlertType.BLOCK_FINISHED -> onBlockFinished(alert as BlockFinishedAlert)
+                AlertType.ADD_TORRENT -> onAddTorrent(alert as AddTorrentAlert)
             }
         }
 
@@ -60,6 +58,8 @@ class TorrentStream(
 
         val torrentHandle = metadataReceivedAlert.handle()
         val torrentInfo = torrentHandle.torrentFile()
+
+        torrentStreamListener?.onMetadataReceived(createTorrentStreamInstance(torrentHandle))
 
         sessionManager.download(torrentInfo, torrentStreamOptions.downloadLocation)
     }
@@ -80,16 +80,12 @@ class TorrentStream(
         torrentHandle.setBufferPriorities(MaxPrioritizedPieceCount)
     }
 
-    private fun onBlockFinished(blockFinishedAlert: BlockFinishedAlert) {
-        Log.d("onBlockFinished", "| Block Index: ${blockFinishedAlert.blockIndex()}")
-    }
-
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
-        Log.d("onAddTorrent", "Torrent Added")
-
         val torrentHandle = addTorrentAlert.handle()
 
         downloadedPieceIndexes.clear()
+
+        torrentStreamListener?.onAddTorrent(createTorrentStreamInstance(torrentHandle))
 
         // TODO: Need to clear normal state once first and last piece indexes are determined.
 
@@ -102,22 +98,22 @@ class TorrentStream(
                 .resume()
     }
 
-    private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) {
-        Log.d("onTorrentError", "Torrent Error Occurred")
-    }
+    private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) =
+            torrentStreamListener?.onTorrentError(
+                    createTorrentStreamInstance(torrentErrorAlert.handle())
+            )
 
-    private fun onTorrentLog(torrentLogAlert: TorrentLogAlert) {
-        Log.d("onTorrentLog", torrentLogAlert.logMessage())
-    }
+    private fun onTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) =
+            torrentStreamListener?.onTorrentFinished(
+                    createTorrentStreamInstance(torrentFinishedAlert.handle())
+            )
 
-    private fun onTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) {
-        Log.d("onTorrentFinished", "Torrent Finished")
-    }
+    private fun onMetadataFailed(metadataFailedAlert: MetadataFailedAlert) =
+            torrentStreamListener?.onMetadataFailed(
+                    createTorrentStreamInstance(metadataFailedAlert.handle())
+            )
 
-    private fun onMetadataFailed(metadataFailedAlert: MetadataFailedAlert) {
-    }
-
-    private fun onDhtStats(dhtStatsAlert: DhtStatsAlert) {
+    private fun onDhtStats() {
         synchronized(dhtLock) {
             if (isDhtReady()) {
                 dhtLock.notify()
@@ -125,7 +121,7 @@ class TorrentStream(
         }
     }
 
-    private fun onDhtBootstrap(dhtBootstrapAlert: DhtBootstrapAlert) {
+    private fun onDhtBootstrap() {
         synchronized(dhtLock) {
             dhtLock.notify()
         }
