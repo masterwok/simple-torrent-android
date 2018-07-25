@@ -4,6 +4,13 @@ import android.support.v4.app.Fragment
 import com.masterwok.demosimpletorrentstream.contracts.TabFragment
 
 
+/**
+ * This class is responsible for managing tab fragments. Specifically from the
+ * parent [@see Activity]. When tabs are requested, they are created through the
+ * corresponding factory methods provided to the [@see constructor]. The tabs can
+ * be configured using some model of type [T]. The tabs will be added in the order
+ * they were provided.
+ */
 class TabFragmentManager<T : Any> constructor(
         private vararg val tabFactoryArray: Pair<Class<out Fragment>, () -> TabFragment<T>>
 ) {
@@ -23,13 +30,25 @@ class TabFragmentManager<T : Any> constructor(
         return tabFragment
     }
 
-    fun getCount(): Int = tabFactoryArray.size
+    /**
+     * Get the tab count.
+     */
+    fun getTabCount(): Int = tabFactoryArray.size
 
-    fun getItem(position: Int): TabFragment<T> = getTabFragment(position)
+    /**
+     * Get the tab at [position].
+     */
+    fun getTab(position: Int): TabFragment<T> = getTabFragment(position)
 
-    fun getPageTitle(position: Int): CharSequence? = getTabFragment(position)
+    /**
+     * Get tab title at [position].
+     */
+    fun getTitle(position: Int): CharSequence? = getTabFragment(position)
             .getTitle()
 
+    /**
+     * Configure all fragments using the provided [model].
+     */
     fun configure(model: T) = tabInstanceMapping.values.forEach {
         it.configure(model)
     }

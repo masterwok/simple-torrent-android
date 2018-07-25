@@ -19,12 +19,12 @@ class TorrentSessionPagerAdapter(
             , TorrentPiecesFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentPiecesFragment() }
     )
 
-    override fun getCount(): Int = tabFragmentManager.getCount()
+    override fun getCount(): Int = tabFragmentManager.getTabCount()
 
-    override fun getItem(position: Int): Fragment = tabFragmentManager.getItem(position) as Fragment
+    override fun getItem(position: Int): Fragment = tabFragmentManager.getTab(position) as Fragment
 
     override fun getPageTitle(position: Int): CharSequence? =
-            tabFragmentManager.getPageTitle(position)
+            tabFragmentManager.getTitle(position)
 
     fun configure(torrentSessionStatus: TorrentSessionStatus) = tabFragmentManager.configure(torrentSessionStatus)
 }
