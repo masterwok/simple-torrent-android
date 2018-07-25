@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
-import com.masterwok.demosimpletorrentstream.contracts.TabbedFragment
+import com.masterwok.demosimpletorrentstream.contracts.TabFragment
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 
-class TorrentPiecesFragment : Fragment()
-        , TabbedFragment<TorrentSessionStatus> {
+
+class TorrentPiecesFragment : Fragment(), TabFragment<TorrentSessionStatus> {
 
     override fun onCreateView(
             inflater: LayoutInflater
@@ -22,7 +22,7 @@ class TorrentPiecesFragment : Fragment()
             , false
     )
 
-    override fun getTabTitle(): String = "Pieces"
+    override fun getTitle(): String = "Pieces"
 
     override fun configure(model: TorrentSessionStatus) {
     }

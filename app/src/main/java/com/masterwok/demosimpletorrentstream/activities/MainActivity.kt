@@ -8,7 +8,7 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.masterwok.demosimpletorrentstream.R
-import com.masterwok.demosimpletorrentstream.adapters.TorrentSessionFragmentPagerAdapter
+import com.masterwok.demosimpletorrentstream.adapters.TorrentSessionPagerAdapter
 import com.masterwok.simpletorrentstream.TorrentSession
 import com.masterwok.simpletorrentstream.TorrentSessionOptions
 import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
@@ -22,13 +22,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager
 
+    private val torrentSessionPagerAdapter = TorrentSessionPagerAdapter(supportFragmentManager)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         bindViewComponents()
 
-        viewPager.adapter = TorrentSessionFragmentPagerAdapter(supportFragmentManager)
+        viewPager.adapter = torrentSessionPagerAdapter
         tabLayout.setupWithViewPager(viewPager)
 
         if (!isPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -57,44 +59,46 @@ class MainActivity : AppCompatActivity() {
     private val torrentStreamListener = object : TorrentSessionListener {
 
         override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
-                log("onAddTorrent", torrentSessionStatus)
+                configure("onAddTorrent", torrentSessionStatus)
 
         override fun onTorrentRemoved(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentRemoved", torrentSessionStatus)
+                configure("onTorrentRemoved", torrentSessionStatus)
 
         override fun onTorrentDeleted(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentRemoved", torrentSessionStatus)
+                configure("onTorrentRemoved", torrentSessionStatus)
 
         override fun onTorrentDeleteFailed(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentDeleteFailed", torrentSessionStatus)
+                configure("onTorrentDeleteFailed", torrentSessionStatus)
 
         override fun onTorrentError(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentError", torrentSessionStatus)
+                configure("onTorrentError", torrentSessionStatus)
 
         override fun onTorrentResumed(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentResumed", torrentSessionStatus)
+                configure("onTorrentResumed", torrentSessionStatus)
 
         override fun onTorrentPaused(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentPaused", torrentSessionStatus)
+                configure("onTorrentPaused", torrentSessionStatus)
 
         // TODO: Fix state when stream has already been downloaded (see logs).
         override fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus) =
-                log("onTorrentFinished", torrentSessionStatus)
+                configure("onTorrentFinished", torrentSessionStatus)
 
         // TODO: Ensure piece count is correct on finish (see logs).
         override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
-                log("onPieceFinished", torrentSessionStatus)
+                configure("onPieceFinished", torrentSessionStatus)
 
         override fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus) =
-                log("onMetadataFailed", torrentSessionStatus)
+                configure("onMetadataFailed", torrentSessionStatus)
 
         override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
-                log("onMetadataReceived", torrentSessionStatus)
+                configure("onMetadataReceived", torrentSessionStatus)
 
-        private fun log(
+        private fun configure(
                 tag: String
                 , torrentSessionStatus: TorrentSessionStatus
         ) {
+            torrentSessionPagerAdapter.configure(torrentSessionStatus)
+
             Log.d(
                     tag
                     , "| Total Pieces: ${torrentSessionStatus.totalPieces}"
