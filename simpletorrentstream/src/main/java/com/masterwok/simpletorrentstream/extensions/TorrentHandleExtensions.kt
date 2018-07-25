@@ -1,15 +1,30 @@
 package com.masterwok.simpletorrentstream.extensions
 
+import android.net.Uri
 import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.TorrentHandle
 
 
 /**
+ * Get the save location of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getSaveLocation(): Uri = Uri.parse("${savePath()}/${name()}")
+
+/**
+ * Get the Uri of the largest file of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getLargestFileUri(): Uri =
+        Uri.parse("${getSaveLocation()}/${getLargestFileName()}")
+
+/**
+ * Get the file name of the largest file of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getLargestFileName(): String = torrentFile().getLargestFileName()
+
+/**
  * Get the largest file index of the [TorrentHandle].
  */
-internal fun TorrentHandle.getLargestFileIndex(): Int = torrentFile()
-        .files()
-        .getLargestFileIndex()
+internal fun TorrentHandle.getLargestFileIndex(): Int = torrentFile().getLargestFileIndex()
 
 /**
  * Prioritize the largest file of the [TorrentHandle].
@@ -54,6 +69,14 @@ internal fun TorrentHandle.getFirstNonDownloadedPieceInRange(
 }
 
 /**
+ * Get the first non-downloaded, non-ignored piece index of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getFirstMissingPieceIndex(
+): Int = (getFirstNonIgnoredPieceIndex()..getLastNonIgnoredPieceIndex()).indexOfFirst {
+    !havePiece(it)
+}
+
+/**
  * Set the priorities of the pieces of the [TorrentHandle] so that pieces are downloaded
  * as close to in-order as possible. For example, let n equal some number less than or
  * equal to [bufferSize] where n represents the number of pieces set to the highest
@@ -68,10 +91,7 @@ internal fun TorrentHandle.setBufferPriorities(
         return
     }
 
-    val firstNonDownloadedIndex = getFirstNonDownloadedPieceInRange(
-            getFirstNonIgnoredPieceIndex()
-            , getLastNonIgnoredPieceIndex()
-    )
+    val firstNonDownloadedIndex = getFirstMissingPieceIndex()
 
     (firstNonDownloadedIndex..(firstNonDownloadedIndex + bufferSize)).forEach {
         piecePriority(it, Priority.SEVEN)

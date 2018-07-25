@@ -4,21 +4,29 @@ import android.util.Log
 import com.frostwire.jlibtorrent.AlertListener
 import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.SessionManager
+import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.alerts.*
-import com.masterwok.simpletorrentstream.extensions.*
-import java.io.File
+import com.masterwok.simpletorrentstream.contracts.TorrentStreamListener
+import com.masterwok.simpletorrentstream.extensions.ignoreAllFiles
+import com.masterwok.simpletorrentstream.extensions.prioritizeLargestFile
+import com.masterwok.simpletorrentstream.extensions.setBufferPriorities
+import com.masterwok.simpletorrentstream.models.TorrentStreamStatus
 import java.net.URLDecoder
 
 
 class TorrentStream(
-        private val sessionOptions: StreamOptions
+        private val torrentStreamOptions: TorrentStreamOptions
 ) {
     companion object {
         private const val MaxPrioritizedPieceCount = 8
     }
 
+
+    private var torrentStreamListener: TorrentStreamListener? = null
+    private val downloadedPieceIndexes: ArrayList<Int> = ArrayList()
     private val sessionManager = SessionManager()
     private val dhtLock = Object()
+
 
     private val alertListener = object : AlertListener {
         override fun alert(alert: Alert<*>) {
@@ -53,34 +61,21 @@ class TorrentStream(
         val torrentHandle = metadataReceivedAlert.handle()
         val torrentInfo = torrentHandle.torrentFile()
 
-        sessionManager.download(torrentInfo, sessionOptions.downloadLocation)
+        sessionManager.download(torrentInfo, torrentStreamOptions.downloadLocation)
     }
+
+    private fun createTorrentStreamInstance(torrentHandle: TorrentHandle) =
+            TorrentStreamStatus.createInstance(
+                    torrentHandle
+                    , downloadedPieceIndexes
+            )
 
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
-        val piecePriorities = torrentHandle.piecePriorities()
-        val totalBytesWanted = torrentHandle.status().totalWanted()
-        val totalBytesDone = torrentHandle.status().totalDone()
-        val pieceCount = torrentHandle.torrentFile().numPieces()
-        val isFinished = torrentHandle.status().isFinished
 
-        val firstMissingPieceIndex = torrentHandle.getFirstNonDownloadedPieceInRange(
-                torrentHandle.getFirstNonIgnoredPieceIndex()
-                , torrentHandle.getLastNonIgnoredPieceIndex()
-        )
+        downloadedPieceIndexes.add(pieceFinishedAlert.pieceIndex())
 
-        val progress: Int = (torrentHandle
-                .status()
-                .progress() * 100).toInt()
-
-        Log.d(
-                "onPieceFinished",
-                "| Piece Count: ${piecePriorities.size}"
-                        + ", Piece: ${pieceFinishedAlert.pieceIndex()}/$pieceCount"
-                        + ", First Missing Piece Index: $firstMissingPieceIndex"
-                        + ", Progress: $totalBytesDone/$totalBytesWanted ($progress%)"
-                        + ", Is Finished: $isFinished"
-        )
+        torrentStreamListener?.onPieceFinished(createTorrentStreamInstance(torrentHandle))
 
         torrentHandle.setBufferPriorities(MaxPrioritizedPieceCount)
     }
@@ -93,6 +88,10 @@ class TorrentStream(
         Log.d("onAddTorrent", "Torrent Added")
 
         val torrentHandle = addTorrentAlert.handle()
+
+        downloadedPieceIndexes.clear()
+
+        // TODO: Need to clear normal state once first and last piece indexes are determined.
 
         torrentHandle.ignoreAllFiles()
         torrentHandle.prioritizeLargestFile(Priority.NORMAL)
@@ -126,7 +125,6 @@ class TorrentStream(
         }
     }
 
-
     private fun onDhtBootstrap(dhtBootstrapAlert: DhtBootstrapAlert) {
         synchronized(dhtLock) {
             dhtLock.notify()
@@ -135,15 +133,21 @@ class TorrentStream(
 
     init {
         sessionManager.addListener(alertListener)
-        sessionManager.start(sessionOptions.build())
+        sessionManager.start(torrentStreamOptions.build())
     }
 
     private fun isDhtReady() = sessionManager
             .stats()
             .dhtNodes() >= 10
 
+    /**
+     * Download the torrent associated with the provided [magnetUri]. Abandon
+     * downloading the torrent if the magnet fails to resolve within the provided
+     * [timeout] in seconds.
+     */
     suspend fun downloadMagnet(
-            uri: String
+            magnetUri: String
+            , timeout: Int
     ): Unit = synchronized(dhtLock) {
         // We must wait for DHT to start
         if (!isDhtReady()) {
@@ -151,22 +155,14 @@ class TorrentStream(
         }
 
         sessionManager.fetchMagnet(
-                URLDecoder.decode(uri, "utf-8")
-                , 30
+                URLDecoder.decode(magnetUri, "utf-8")
+                , timeout
         )
     }
 
-    class Builder {
-        private lateinit var downloadLocation: File
-
-        fun build(): StreamOptions = StreamOptions(
-                downloadLocation
-        )
-
-        fun setDownloadLocation(downloadLocation: File): Builder {
-            this.downloadLocation = downloadLocation
-            return this
-        }
+    fun setListener(torrentStreamListener: TorrentStreamListener?) {
+        this.torrentStreamListener = torrentStreamListener
     }
+
 }
 
