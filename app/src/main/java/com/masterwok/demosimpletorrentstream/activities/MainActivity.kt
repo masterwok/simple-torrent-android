@@ -1,10 +1,14 @@
-package com.masterwok.demosimpletorrentstream
+package com.masterwok.demosimpletorrentstream.activities
 
 import android.Manifest
 import android.os.Bundle
 import android.os.Environment
+import android.support.design.widget.TabLayout
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import com.masterwok.demosimpletorrentstream.R
+import com.masterwok.demosimpletorrentstream.adapters.TorrentSessionFragmentPagerAdapter
 import com.masterwok.simpletorrentstream.TorrentSession
 import com.masterwok.simpletorrentstream.TorrentSessionOptions
 import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
@@ -15,10 +19,17 @@ import kotlinx.coroutines.experimental.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        bindViewComponents()
+
+        viewPager.adapter = TorrentSessionFragmentPagerAdapter(supportFragmentManager)
+        tabLayout.setupWithViewPager(viewPager)
 
         if (!isPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             appCompatRequestPermissions(
@@ -30,6 +41,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         startDownload()
+    }
+
+    private fun bindViewComponents() {
+        tabLayout = findViewById(R.id.tab_layout)
+        viewPager = findViewById(R.id.view_pager)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

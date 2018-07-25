@@ -31,11 +31,15 @@ ext {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    // Android Support libraries
     implementation "com.android.support:appcompat-v7:$version_support"
+    implementation "com.android.support:design:$version_support"
     implementation "com.android.support.constraint:constraint-layout:$version_constraint"
 
-    // Kotlin co-routines
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // Kotlin co-routine
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_kotlinx_coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version_kotlinx_coroutines"
 
