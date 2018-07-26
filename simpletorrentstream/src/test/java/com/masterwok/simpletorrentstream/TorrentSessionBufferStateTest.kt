@@ -21,11 +21,7 @@ class TorrentSessionBufferStateTest {
             bufferHeadIndex: Int
             , endIndex: Int
             , bufferSize: Int
-    ): Int {
-        val expectedTail = bufferHeadIndex + bufferSize
-
-        return if (expectedTail > endIndex) return endIndex else expectedTail
-    }
+    ): Int = Math.min(bufferHeadIndex + bufferSize, endIndex)
 
     @Test
     fun new_instance_has_correct_values() {
@@ -87,7 +83,7 @@ class TorrentSessionBufferStateTest {
         (startIndex..endIndex).forEach {
             underTest.setPieceDownloaded(it)
 
-            assertEquals(underTest.bufferHeadIndex, it + 1)
+            assertEquals(underTest.bufferHeadIndex, Math.min(it + 1, endIndex))
         }
     }
 

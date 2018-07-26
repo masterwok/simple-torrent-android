@@ -61,9 +61,7 @@ class TorrentSessionBufferState constructor(
             bufferTailIndex++
 
             // Don't let the tail of the buffer go past the last piece.
-            if (bufferTailIndex > endIndex) {
-                bufferTailIndex = endIndex
-            }
+            bufferTailIndex = Math.min(bufferTailIndex, endIndex)
 
             if (isFinished()) {
                 bufferHeadIndex = bufferTailIndex
