@@ -62,7 +62,6 @@ class TorrentSession(
     private val sessionManager = SessionManager()
     private val dhtLock = Object()
 
-
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus {
         val lastNonIgnoredPieceIndex = torrentHandle.getLastNonIgnoredPieceIndex()
         var lastPrioritizedPiece: Int = torrentHandle.getFirstMissingPieceIndex() + MaxPrioritizedPieceCount
@@ -70,6 +69,7 @@ class TorrentSession(
         if (lastPrioritizedPiece > lastNonIgnoredPieceIndex) {
             lastPrioritizedPiece = lastNonIgnoredPieceIndex
         }
+
 
         return TorrentSessionStatus.createInstance(
                 torrentHandle
@@ -143,7 +143,6 @@ class TorrentSession(
         addTorrentAlert
                 .handle()
                 .resume()
-
     }
 
     private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) =
