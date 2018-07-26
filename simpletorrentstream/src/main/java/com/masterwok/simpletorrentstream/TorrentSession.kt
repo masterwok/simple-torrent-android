@@ -137,10 +137,7 @@ class TorrentSession(
                 , MaxPrioritizedPieceCount
         )
 
-        // Do not set largest file priority to ignore here as it will cause libtorrent
-        // to remove the torrent before the video file is actually completed.
-
-        torrentHandle.setPiecePriorities(bufferState.startIndex, bufferState.endIndex)
+        torrentHandle.setBufferPriorities(bufferState)
 
         torrentSessionListener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
 

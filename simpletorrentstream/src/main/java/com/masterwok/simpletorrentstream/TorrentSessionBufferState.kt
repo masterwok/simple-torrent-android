@@ -57,15 +57,20 @@ class TorrentSessionBufferState constructor(
 
         // Buffer head was downloaded, advance the buffer a position.
         if (index == bufferHeadIndex) {
-            bufferHeadIndex++
-            bufferTailIndex++
+            bufferHeadIndex = index
 
-            // Don't let the tail of the buffer go past the last piece.
-            bufferTailIndex = Math.min(bufferTailIndex, endIndex)
-
-            if (isFinished()) {
-                bufferHeadIndex = bufferTailIndex
+            while (bufferHeadIndex < pieceDownloadStates.size
+                    && pieceDownloadStates[bufferHeadIndex]) {
+                bufferHeadIndex++
+                bufferTailIndex++
             }
+        }
+
+        // Don't let the tail of the buffer go past the last piece.
+        bufferTailIndex = Math.min(bufferTailIndex, endIndex)
+
+        if (isFinished()) {
+            bufferHeadIndex = bufferTailIndex
         }
 
         return false
