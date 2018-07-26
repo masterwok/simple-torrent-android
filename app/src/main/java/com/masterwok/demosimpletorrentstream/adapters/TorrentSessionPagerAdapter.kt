@@ -3,28 +3,42 @@ package com.masterwok.demosimpletorrentstream.adapters
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import com.masterwok.demosimpletorrentstream.adapters.managers.TabFragmentManager
-import com.masterwok.demosimpletorrentstream.contracts.TabFragment
-import com.masterwok.demosimpletorrentstream.fragments.TorrentControlFragment
-import com.masterwok.demosimpletorrentstream.fragments.TorrentPiecesFragment
-import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 
 
-class TorrentSessionPagerAdapter(
+/**
+ * This fragment pager adapter is responsible for displaying and configuring tabs
+ * that implement [@TabFragmentPagerAdapter.TabFragment]
+ */
+class TabFragmentPagerAdapter<T, M : Any>(
         fm: FragmentManager
-) : FragmentPagerAdapter(fm) {
+        , private vararg val fragments: T
+) : FragmentPagerAdapter(fm) where T : TabFragmentPagerAdapter.TabFragment<M> {
 
-    private val tabFragmentManager = TabFragmentManager(
-            TorrentPiecesFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentPiecesFragment() }
-            , TorrentControlFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentControlFragment() }
-    )
+    /**
+     * This interface is used by the [@see TabFragmentManager] to get tab
+     * titles and to configure the tab for some model of type [T].
+     */
+    interface TabFragment<T> {
 
-    override fun getCount(): Int = tabFragmentManager.getTabCount()
+        /**
+         * Get the title of the tab.
+         */
+        fun getTitle(): String
 
-    override fun getItem(position: Int): Fragment = tabFragmentManager.getTab(position) as Fragment
+        /**
+         * Configure all tabs with the provided [model].
+         */
+        fun configure(model: T)
 
-    override fun getPageTitle(position: Int): CharSequence? =
-            tabFragmentManager.getTitle(position)
+    }
 
-    fun configure(torrentSessionStatus: TorrentSessionStatus) = tabFragmentManager.configure(torrentSessionStatus)
+    override fun getItem(position: Int): Fragment = fragments[position] as Fragment
+
+    override fun getCount(): Int = fragments.size
+
+    override fun getPageTitle(position: Int): CharSequence? = fragments[position].getTitle()
+
+    fun configure(model: M) = fragments.forEach {
+        it.configure(model)
+    }
 }

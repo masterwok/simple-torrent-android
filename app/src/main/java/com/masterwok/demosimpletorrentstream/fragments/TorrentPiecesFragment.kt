@@ -8,12 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
+import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
 import com.masterwok.demosimpletorrentstream.adapters.TorrentPieceAdapter
-import com.masterwok.demosimpletorrentstream.contracts.TabFragment
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 
 
-class TorrentPiecesFragment : Fragment(), TabFragment<TorrentSessionStatus> {
+class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus> {
 
     private lateinit var recyclerView: RecyclerView
 

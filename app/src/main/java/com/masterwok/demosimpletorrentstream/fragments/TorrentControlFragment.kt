@@ -6,10 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
-import com.masterwok.demosimpletorrentstream.contracts.TabFragment
+import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 
-class TorrentControlFragment : Fragment(), TabFragment<TorrentSessionStatus> {
+class TorrentControlFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus> {
 
     override fun onCreateView(
             inflater: LayoutInflater

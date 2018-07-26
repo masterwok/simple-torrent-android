@@ -14,7 +14,8 @@ class TorrentSessionBufferStateTest {
             ", End: ${underTest.endIndex}" +
             ", Head: ${underTest.bufferHeadIndex}" +
             ", Tail: ${underTest.bufferTailIndex}" +
-            ", Last Piece Downloaded Index: ${underTest.lastDownloadedPieceIndex}"
+            ", Last Piece Downloaded Index: ${underTest.lastDownloadedPieceIndex}" +
+            ", IsFinished: ${underTest.isFinished()}"
 
     private fun getExpectedTailIndex(
             bufferHeadIndex: Int
