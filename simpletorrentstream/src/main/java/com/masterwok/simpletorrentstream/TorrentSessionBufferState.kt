@@ -6,9 +6,9 @@ class TorrentSessionBufferState constructor(
         , val endIndex: Int
         , val bufferSize: Int
 ) {
-    val pieceCount = endIndex - startIndex
+    val pieceCount = (endIndex - startIndex) + 1
 
-    private val pieceDownloadStates = ByteArray(pieceCount)
+    private val pieceDownloadStates = BooleanArray(pieceCount)
         get() = field.clone()
 
     var bufferHeadIndex = startIndex
@@ -26,15 +26,17 @@ class TorrentSessionBufferState constructor(
             field = value
         }
 
+    // TODO: Protect this from threading issues..
+    fun isPieceDownloaded(position: Int) = pieceDownloadStates[position]
 
-    @Synchronized
+    // TODO: Protect this from threading issues..
     fun setPieceDownloaded(index: Int) {
         // Index should never be less than the head of the buffer.
         if (index < bufferHeadIndex) {
             return
         }
 
-        pieceDownloadStates[index] = 1
+        pieceDownloadStates[index] = true
         lastDownloadedPieceIndex = index
 
         // Buffer head was downloaded, advance the buffer a position.
@@ -47,8 +49,14 @@ class TorrentSessionBufferState constructor(
                 bufferTailIndex = endIndex
             }
         }
-
     }
+
+    override fun toString(): String = "Total Pieces: $pieceCount" +
+            ", Start: $startIndex" +
+            ", End: $endIndex" +
+            ", Head: $bufferHeadIndex" +
+            ", Tail: $bufferTailIndex" +
+            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex"
 
 }
 
