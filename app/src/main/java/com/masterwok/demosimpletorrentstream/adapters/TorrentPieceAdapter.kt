@@ -80,9 +80,9 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
 
         if (torrentSessionStatus.downloadedPieces.size > previousCompletedPieceCount) {
             previousCompletedPieceCount = torrentSessionStatus.downloadedPieces.size
-//            launch(UI) {
-//                notifyDataSetChanged()
-//            }
+            launch(UI) {
+                notifyDataSetChanged()
+            }
         }
     }
 
