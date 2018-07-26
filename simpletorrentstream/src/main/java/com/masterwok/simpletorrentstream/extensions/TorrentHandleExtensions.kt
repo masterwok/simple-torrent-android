@@ -3,6 +3,7 @@ package com.masterwok.simpletorrentstream.extensions
 import android.net.Uri
 import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.TorrentHandle
+import com.masterwok.simpletorrentstream.TorrentSessionBufferState
 
 
 /**
@@ -108,19 +109,9 @@ internal fun TorrentHandle.getFirstMissingPieceIndex(
  * download priority. Each of the n pieces will be a piece between the first non-downloaded,
  * non-ignored piece index + [bufferSize].
  */
-// TODO: Cache first and last indexe of the piece range.
 internal fun TorrentHandle.setBufferPriorities(
-        bufferSize: Int
-) {
-    // Finished, nothing to do..
-    if (status().isFinished) {
-        return
-    }
-
-    val firstNonDownloadedIndex = getFirstMissingPieceIndex()
-
-    (firstNonDownloadedIndex..(firstNonDownloadedIndex + bufferSize)).forEach {
-        piecePriority(it, Priority.SEVEN)
-        setPieceDeadline(it, 1000)
-    }
+        bufferState: TorrentSessionBufferState
+) = (bufferState.bufferHeadIndex..bufferState.bufferTailIndex).forEach {
+    piecePriority(it, Priority.SEVEN)
+    setPieceDeadline(it, 1000)
 }

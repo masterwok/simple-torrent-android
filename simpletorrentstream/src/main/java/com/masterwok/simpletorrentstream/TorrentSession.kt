@@ -57,24 +57,14 @@ class TorrentSession(
     }
 
     // TODO: Indexes missing when torrent was started previously.
-    private val downloadedPieceIndexes: ArrayList<Int> = ArrayList()
     private var torrentSessionListener: TorrentSessionListener? = null
     private val sessionManager = SessionManager()
     private val dhtLock = Object()
 
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus {
-        val lastNonIgnoredPieceIndex = torrentHandle.getLastNonIgnoredPieceIndex()
-        var lastPrioritizedPiece: Int = torrentHandle.getFirstMissingPieceIndex() + MaxPrioritizedPieceCount
-
-        if (lastPrioritizedPiece > lastNonIgnoredPieceIndex) {
-            lastPrioritizedPiece = lastNonIgnoredPieceIndex
-        }
-
-
         return TorrentSessionStatus.createInstance(
                 torrentHandle
-                , downloadedPieceIndexes
-                , lastPrioritizedPiece
+                , torrentSessionBufferState
         )
     }
 
@@ -111,7 +101,11 @@ class TorrentSession(
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentHandle = metadataReceivedAlert.handle()
 
-        torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
+        try {
+            torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
+        } catch (exception: Exception) {
+            // TODO: Fix ME
+        }
 
         sessionManager.download(
                 torrentHandle.torrentFile()
@@ -119,12 +113,14 @@ class TorrentSession(
         )
     }
 
+    private lateinit var torrentSessionBufferState: TorrentSessionBufferState
+
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
 
-        downloadedPieceIndexes.add(pieceFinishedAlert.pieceIndex())
+        torrentSessionBufferState.setPieceDownloaded(pieceFinishedAlert.pieceIndex())
 
-        torrentHandle.setBufferPriorities(MaxPrioritizedPieceCount)
+        torrentHandle.setBufferPriorities(torrentSessionBufferState)
 
         torrentSessionListener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
     }
@@ -132,11 +128,19 @@ class TorrentSession(
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
         val torrentHandle = addTorrentAlert.handle()
 
-        downloadedPieceIndexes.clear()
-
         torrentHandle.ignoreAllFiles()
         torrentHandle.prioritizeLargestFile(Priority.NORMAL)
-        torrentHandle.setBufferPriorities(MaxPrioritizedPieceCount)
+
+        torrentSessionBufferState = TorrentSessionBufferState(
+                torrentHandle.getFirstNonIgnoredPieceIndex()
+                , torrentHandle.getLastNonIgnoredPieceIndex()
+                , MaxPrioritizedPieceCount
+        )
+
+        // Do not set largest file priority to ignore here as it will cause libtorrent
+        // to remove the torrent before the video file is actually completed.
+
+        torrentHandle.setBufferPriorities(torrentSessionBufferState)
 
         torrentSessionListener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
 

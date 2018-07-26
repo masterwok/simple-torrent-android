@@ -36,7 +36,10 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
                             false
                     ))
 
-    override fun getItemCount(): Int = if (isInitialized) torrentSessionStatus.totalPieces else 0
+    override fun getItemCount(): Int = if (isInitialized) torrentSessionStatus
+            .torrentSessionBufferState
+            .pieceCount
+    else 0
 
     override fun onBindViewHolder(holder: PieceViewHolder, position: Int) {
         val context = holder.itemView.context
@@ -48,27 +51,23 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             context: Context
             , position: Int
     ): Int {
+        val bufferState = torrentSessionStatus.torrentSessionBufferState
 
-        if (position == torrentSessionStatus.firstMissingPieceIndex) {
+        if (position == bufferState.bufferHeadIndex) {
             return ContextCompat.getColor(context, R.color.red)
         }
 
-        if (position < torrentSessionStatus.firstMissingPieceIndex) {
+        if (position < bufferState.bufferHeadIndex
+                || bufferState.isPieceDownloaded(position)) {
             return ContextCompat.getColor(context, R.color.green)
         }
 
-        var color = ContextCompat.getColor(context, R.color.purple)
-
-        if (position > torrentSessionStatus.firstMissingPieceIndex
-                && position <= torrentSessionStatus.lastPrioritizedPiece) {
-            color = ContextCompat.getColor(context, R.color.yellow)
+        if (position > bufferState.bufferHeadIndex
+                && position <= bufferState.bufferTailIndex) {
+            return ContextCompat.getColor(context, R.color.yellow)
         }
 
-        if (torrentSessionStatus.downloadedPieces.contains(position)) {
-            color = ContextCompat.getColor(context, R.color.green)
-        }
-
-        return color
+        return ContextCompat.getColor(context, R.color.purple)
     }
 
     private var previousCompletedPieceCount = -1
@@ -76,10 +75,14 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
     fun configure(torrentSessionStatus: TorrentSessionStatus) {
         this.torrentSessionStatus = torrentSessionStatus
 
+        val downloadedPieceCount = torrentSessionStatus
+                .torrentSessionBufferState
+                .downloadedPieceCount
+
         isInitialized = true
 
-        if (torrentSessionStatus.downloadedPieces.size > previousCompletedPieceCount) {
-            previousCompletedPieceCount = torrentSessionStatus.downloadedPieces.size
+        if (downloadedPieceCount > previousCompletedPieceCount) {
+            previousCompletedPieceCount = downloadedPieceCount
             launch(UI) {
                 notifyDataSetChanged()
             }
