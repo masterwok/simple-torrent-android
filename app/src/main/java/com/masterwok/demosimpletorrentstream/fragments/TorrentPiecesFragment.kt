@@ -2,28 +2,58 @@ package com.masterwok.demosimpletorrentstream.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
+import com.masterwok.demosimpletorrentstream.adapters.TorrentPieceAdapter
 import com.masterwok.demosimpletorrentstream.contracts.TabFragment
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 
 class TorrentPiecesFragment : Fragment(), TabFragment<TorrentSessionStatus> {
+
+    private lateinit var recyclerView: RecyclerView
+
+    private val torrentPieceAdapter: TorrentPieceAdapter = TorrentPieceAdapter()
 
     override fun onCreateView(
             inflater: LayoutInflater
             , container: ViewGroup?
             , savedInstanceState: Bundle?
-    ): View = inflater.inflate(
-            R.layout.fragment_torrent_pieces
-            , container
-            , false
-    )
+    ): View {
+        val view = inflater.inflate(
+                R.layout.fragment_torrent_pieces
+                , container
+                , false
+        )
+
+        bindViewComponents(view)
+        initPiecesRecyclerView(view)
+
+        return view
+    }
+
+    private fun bindViewComponents(view: View) {
+        recyclerView = view.findViewById(R.id.recycler_view_pieces)
+    }
+
+    private fun initPiecesRecyclerView(view: View) {
+        recyclerView.apply {
+            layoutManager = GridLayoutManager(view.context, 16)
+            adapter = torrentPieceAdapter
+        }
+    }
 
     override fun getTitle(): String = "Pieces"
 
     override fun configure(model: TorrentSessionStatus) {
+        launch(UI) {
+            torrentPieceAdapter.configure(model)
+        }
     }
 }

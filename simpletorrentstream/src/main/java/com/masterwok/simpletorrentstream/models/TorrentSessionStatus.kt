@@ -13,6 +13,7 @@ class TorrentSessionStatus private constructor(
         , val videoFileUri: Uri
         , val saveUri: Uri
         , val firstMissingPieceIndex: Int
+        , val lastPrioritizedPiece: Int
         , val downloadedPieces: List<Int>
         , val totalPieces: Int
 ) {
@@ -20,6 +21,7 @@ class TorrentSessionStatus private constructor(
         fun createInstance(
                 torrentHandle: TorrentHandle
                 , downloadedPieceIndexes: List<Int>
+                , lastPrioritizedPiece: Int
         ): TorrentSessionStatus = TorrentSessionStatus(
                 torrentHandle.isFinished()
                 , torrentHandle.getProgress()
@@ -28,6 +30,7 @@ class TorrentSessionStatus private constructor(
                 , torrentHandle.getLargestFileUri()
                 , torrentHandle.getSaveLocation()
                 , torrentHandle.getFirstMissingPieceIndex()
+                , lastPrioritizedPiece
                 , downloadedPieceIndexes
                 , torrentHandle.getPieceCount()
         )

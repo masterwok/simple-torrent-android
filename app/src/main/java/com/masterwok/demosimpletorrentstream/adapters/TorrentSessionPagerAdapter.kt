@@ -15,8 +15,8 @@ class TorrentSessionPagerAdapter(
 ) : FragmentPagerAdapter(fm) {
 
     private val tabFragmentManager = TabFragmentManager(
-            TorrentControlFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentControlFragment() }
-            , TorrentPiecesFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentPiecesFragment() }
+            TorrentPiecesFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentPiecesFragment() }
+            , TorrentControlFragment::class.java to fun(): TabFragment<TorrentSessionStatus> { return TorrentControlFragment() }
     )
 
     override fun getCount(): Int = tabFragmentManager.getTabCount()

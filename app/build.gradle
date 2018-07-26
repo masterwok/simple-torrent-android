@@ -33,6 +33,7 @@ dependencies {
 
     // Android Support libraries
     implementation "com.android.support:appcompat-v7:$version_support"
+    implementation "com.android.support:cardview-v7:$version_support"
     implementation "com.android.support:design:$version_support"
     implementation "com.android.support.constraint:constraint-layout:$version_constraint"
 
