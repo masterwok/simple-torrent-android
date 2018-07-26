@@ -9,35 +9,51 @@ class TorrentSessionBufferState constructor(
     val pieceCount = (endIndex - startIndex) + 1
 
     private val pieceDownloadStates = BooleanArray(pieceCount)
-        get() = field.clone()
+
+    var downloadedPieceCount = 0
+        @Synchronized
+        get() = field
+        private set(value) {
+            field = value
+        }
 
     var bufferHeadIndex = startIndex
+        @Synchronized
+        get() = field
         private set(value) {
             field = value
         }
 
     var bufferTailIndex = startIndex + bufferSize
+        @Synchronized
+        get() = field
         private set(value) {
             field = value
         }
 
     var lastDownloadedPieceIndex = -1
+        @Synchronized
+        get() = field
         private set(value) {
             field = value
         }
 
-    // TODO: Protect this from threading issues..
+    @Synchronized
+    fun isFinished() = !pieceDownloadStates.contains(false)
+
+    @Synchronized
     fun isPieceDownloaded(position: Int) = pieceDownloadStates[position]
 
-    // TODO: Protect this from threading issues..
-    fun setPieceDownloaded(index: Int) {
-        // Index should never be less than the head of the buffer.
-        if (index < bufferHeadIndex) {
-            return
+    @Synchronized
+    fun setPieceDownloaded(index: Int): Boolean {
+        // Ignore if less than head or already downloaded.
+        if (index < bufferHeadIndex || isPieceDownloaded(index)) {
+            return true
         }
 
         pieceDownloadStates[index] = true
         lastDownloadedPieceIndex = index
+        downloadedPieceCount++
 
         // Buffer head was downloaded, advance the buffer a position.
         if (index == bufferHeadIndex) {
@@ -49,15 +65,17 @@ class TorrentSessionBufferState constructor(
                 bufferTailIndex = endIndex
             }
         }
+
+        return false
     }
 
+    @Synchronized
     override fun toString(): String = "Total Pieces: $pieceCount" +
             ", Start: $startIndex" +
             ", End: $endIndex" +
             ", Head: $bufferHeadIndex" +
             ", Tail: $bufferTailIndex" +
             ", Last Piece Downloaded Index: $lastDownloadedPieceIndex"
-
 }
 
 
