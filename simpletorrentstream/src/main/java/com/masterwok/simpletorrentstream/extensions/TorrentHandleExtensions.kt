@@ -111,23 +111,16 @@ internal fun TorrentHandle.getFirstMissingPieceIndex(
  */
 internal fun TorrentHandle.setBufferPriorities(
         bufferState: TorrentSessionBufferState
-) = (bufferState.bufferHeadIndex..bufferState.bufferTailIndex).forEach {
-    piecePriority(it, Priority.SEVEN)
-    setPieceDeadline(it, 1000)
+) {
+    clearPieceDeadlines()
+    setPiecePriorities(bufferState.startIndex, bufferState.bufferTailIndex)
+    setPiecePriorities(bufferState.bufferTailIndex + 1, bufferState.endIndex)
 }
 
-// TODO: What is this really doing?
-internal fun TorrentHandle.initPiecePriorities(
+internal fun TorrentHandle.setPiecePriorities(
         startIndex: Int
         , endIndex: Int
-) {
-    (endIndex..startIndex).forEach {
-        piecePriority(it, Priority.SEVEN)
-        setPieceDeadline(it, 1000)
-    }
-
-    (startIndex..endIndex).forEach {
-        piecePriority(it, Priority.SEVEN)
-        setPieceDeadline(it, 1000)
-    }
+) = (startIndex..endIndex).forEach {
+    piecePriority(it, Priority.SEVEN)
+    setPieceDeadline(it, 1000)
 }
