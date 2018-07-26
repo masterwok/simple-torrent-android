@@ -189,7 +189,7 @@ class TorrentSession(
      * downloading the torrent if the magnet fails to resolve within the provided
      * [timeout] in seconds.
      */
-    suspend fun downloadMagnet(
+    fun downloadMagnet(
             magnetUri: String
             , timeout: Int
     ): Unit = synchronized(dhtLock) {
