@@ -116,6 +116,7 @@ internal fun TorrentHandle.setBufferPriorities(
     setPieceDeadline(it, 1000)
 }
 
+// TODO: What is this really doing?
 internal fun TorrentHandle.initPiecePriorities(
         startIndex: Int
         , endIndex: Int
