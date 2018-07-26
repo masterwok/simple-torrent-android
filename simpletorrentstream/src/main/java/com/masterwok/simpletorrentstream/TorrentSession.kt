@@ -26,6 +26,8 @@ class TorrentSession(
 
     val isRunning get() = sessionManager.isRunning
 
+    private val alertListener = TorrentSessionAlertListener(this)
+
     private class TorrentSessionAlertListener(
             torrentSession: TorrentSession
     ) : AlertListener {
@@ -172,8 +174,6 @@ class TorrentSession(
             dhtLock.notify()
         }
     }
-
-    private val alertListener = TorrentSessionAlertListener(this)
 
     init {
         sessionManager.addListener(alertListener)

@@ -11,8 +11,6 @@ import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.demosimpletorrentstream.adapters.TorrentPieceAdapter
 import com.masterwok.demosimpletorrentstream.contracts.TabFragment
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 
 
 class TorrentPiecesFragment : Fragment(), TabFragment<TorrentSessionStatus> {
@@ -52,8 +50,6 @@ class TorrentPiecesFragment : Fragment(), TabFragment<TorrentSessionStatus> {
     override fun getTitle(): String = "Pieces"
 
     override fun configure(model: TorrentSessionStatus) {
-        launch(UI) {
-            torrentPieceAdapter.configure(model)
-        }
+        torrentPieceAdapter.configure(model)
     }
 }

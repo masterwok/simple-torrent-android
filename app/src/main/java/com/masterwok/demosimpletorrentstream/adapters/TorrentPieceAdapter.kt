@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHolder>() {
 
@@ -69,12 +71,19 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
         return color
     }
 
+    private var previousCompletedPieceCount = -1
+
     fun configure(torrentSessionStatus: TorrentSessionStatus) {
         this.torrentSessionStatus = torrentSessionStatus
 
         isInitialized = true
 
-        notifyDataSetChanged()
+        if (torrentSessionStatus.downloadedPieces.size > previousCompletedPieceCount) {
+            previousCompletedPieceCount = torrentSessionStatus.downloadedPieces.size
+//            launch(UI) {
+//                notifyDataSetChanged()
+//            }
+        }
     }
 
 }
