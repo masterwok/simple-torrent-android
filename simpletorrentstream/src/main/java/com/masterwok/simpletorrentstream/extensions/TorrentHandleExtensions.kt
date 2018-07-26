@@ -115,3 +115,18 @@ internal fun TorrentHandle.setBufferPriorities(
     piecePriority(it, Priority.SEVEN)
     setPieceDeadline(it, 1000)
 }
+
+internal fun TorrentHandle.initPiecePriorities(
+        startIndex: Int
+        , endIndex: Int
+) {
+    (endIndex..startIndex).forEach {
+        piecePriority(it, Priority.SEVEN)
+        setPieceDeadline(it, 1000)
+    }
+
+    (startIndex..endIndex).forEach {
+        piecePriority(it, Priority.SEVEN)
+        setPieceDeadline(it, 1000)
+    }
+}

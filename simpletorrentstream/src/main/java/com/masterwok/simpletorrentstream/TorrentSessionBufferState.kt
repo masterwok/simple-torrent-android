@@ -64,6 +64,10 @@ class TorrentSessionBufferState constructor(
             if (bufferTailIndex > endIndex) {
                 bufferTailIndex = endIndex
             }
+
+            if (isFinished()) {
+                bufferHeadIndex = bufferTailIndex
+            }
         }
 
         return false

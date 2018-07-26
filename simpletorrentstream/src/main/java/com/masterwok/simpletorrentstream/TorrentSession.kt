@@ -64,7 +64,7 @@ class TorrentSession(
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus {
         return TorrentSessionStatus.createInstance(
                 torrentHandle
-                , torrentSessionBufferState
+                , bufferState
         )
     }
 
@@ -113,14 +113,14 @@ class TorrentSession(
         )
     }
 
-    private lateinit var torrentSessionBufferState: TorrentSessionBufferState
+    private lateinit var bufferState: TorrentSessionBufferState
 
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
 
-        torrentSessionBufferState.setPieceDownloaded(pieceFinishedAlert.pieceIndex())
+        bufferState.setPieceDownloaded(pieceFinishedAlert.pieceIndex())
 
-        torrentHandle.setBufferPriorities(torrentSessionBufferState)
+        torrentHandle.setBufferPriorities(bufferState)
 
         torrentSessionListener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
     }
@@ -131,7 +131,7 @@ class TorrentSession(
         torrentHandle.ignoreAllFiles()
         torrentHandle.prioritizeLargestFile(Priority.NORMAL)
 
-        torrentSessionBufferState = TorrentSessionBufferState(
+        bufferState = TorrentSessionBufferState(
                 torrentHandle.getFirstNonIgnoredPieceIndex()
                 , torrentHandle.getLastNonIgnoredPieceIndex()
                 , MaxPrioritizedPieceCount
@@ -140,7 +140,8 @@ class TorrentSession(
         // Do not set largest file priority to ignore here as it will cause libtorrent
         // to remove the torrent before the video file is actually completed.
 
-        torrentHandle.setBufferPriorities(torrentSessionBufferState)
+        torrentHandle.initPiecePriorities(bufferState.startIndex, bufferState.endIndex)
+        torrentHandle.setBufferPriorities(bufferState)
 
         torrentSessionListener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
 

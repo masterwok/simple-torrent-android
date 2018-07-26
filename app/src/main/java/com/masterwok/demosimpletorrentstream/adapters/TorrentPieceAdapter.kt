@@ -54,6 +54,10 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
         val bufferState = torrentSessionStatus.torrentSessionBufferState
 
         if (position == bufferState.bufferHeadIndex) {
+            if (bufferState.isFinished()) {
+                return ContextCompat.getColor(context, R.color.green)
+            }
+
             return ContextCompat.getColor(context, R.color.red)
         }
 
