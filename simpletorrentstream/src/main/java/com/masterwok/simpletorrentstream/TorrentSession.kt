@@ -213,17 +213,30 @@ class TorrentSession(
         )
     }
 
+    /**
+     * Set a callback listener to receive torrent session alerts.
+     */
     fun setListener(torrentSessionListener: TorrentSessionListener?) {
         this.torrentSessionListener = torrentSessionListener
     }
 
+    /**
+     * Stop the torrent session. This is an expensive operation and should not be
+     * done on the main thread.
+     */
     fun stop() {
         sessionManager.removeListener(alertListener)
         sessionManager.stop()
     }
 
+    /**
+     * Pause torrent session.
+     */
     fun pause() = sessionManager.pause()
 
+    /**
+     * Resume torrent session.
+     */
     fun resume() = sessionManager.resume()
 
 }
