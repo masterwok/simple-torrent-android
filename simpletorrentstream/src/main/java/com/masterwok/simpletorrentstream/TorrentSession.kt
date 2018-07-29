@@ -1,5 +1,6 @@
 package com.masterwok.simpletorrentstream
 
+import android.net.Uri
 import android.util.Log
 import com.frostwire.jlibtorrent.AlertListener
 import com.frostwire.jlibtorrent.Priority
@@ -32,6 +33,8 @@ class TorrentSession(
     private var bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
     private val alertListener = TorrentSessionAlertListener(this)
     private val sessionManager = SessionManager()
+    private var saveLocationUri: Uri = Uri.EMPTY
+    private var largestFileUri: Uri = Uri.EMPTY
     private val dhtLock = Object()
 
 
@@ -71,6 +74,8 @@ class TorrentSession(
         return TorrentSessionStatus.createInstance(
                 torrentHandle
                 , bufferState
+                , saveLocationUri
+                , largestFileUri
         )
     }
 
@@ -107,7 +112,8 @@ class TorrentSession(
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentHandle = metadataReceivedAlert.handle()
 
-        torrentHandle.status().state()
+        largestFileUri = torrentHandle.getLargestFileUri()
+        saveLocationUri = torrentHandle.getSaveLocation()
 
         torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
 
