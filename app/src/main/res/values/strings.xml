@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Demo Simple Torrent Stream</string>
+    <string name="button_add_torrent">Add Torrent</string>
 </resources>

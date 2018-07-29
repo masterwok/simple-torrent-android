@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
-import com.masterwok.demosimpletorrentstream.fragments.TorrentControlFragment
 import com.masterwok.demosimpletorrentstream.fragments.TorrentPiecesFragment
 import com.masterwok.simpletorrentstream.TorrentSession
 import com.masterwok.simpletorrentstream.TorrentSessionOptions
@@ -28,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     private val torrentSessionPagerAdapter = TabFragmentPagerAdapter(
             supportFragmentManager
             , TorrentPiecesFragment()
-            , TorrentControlFragment()
     )
 
     private lateinit var torrentSession: TorrentSession

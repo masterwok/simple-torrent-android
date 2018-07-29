@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:orientation="vertical"
     tools:context=".activities.MainActivity">
 
@@ -12,7 +13,11 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         app:tabBackground="@color/colorPrimary"
+        app:tabGravity="fill"
+        app:tabMaxWidth="1000dp"
+        app:tabMode="fixed"
         app:tabSelectedTextColor="@android:color/white"
         app:tabTextColor="@android:color/white"/>
 
@@ -20,6 +25,20 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab_layout"
+        android:layout_above="@+id/button_two"/>
 
-</LinearLayout>
+    <android.support.v7.widget.AppCompatButton
+        android:id="@id/button_two"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/selectableItemBackground"
+        android:minHeight="100dp"
+        android:text="@string/button_add_torrent"
+        android:textColor="@android:color/white">
+    </android.support.v7.widget.AppCompatButton>
+
+</RelativeLayout>
