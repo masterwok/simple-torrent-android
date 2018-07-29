@@ -28,9 +28,12 @@ class TorrentSession(
 
     val isRunning get() = sessionManager.isRunning
 
-    private val alertListener = TorrentSessionAlertListener(this)
-
+    private var torrentSessionListener: TorrentSessionListener? = null
     private var bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
+    private val alertListener = TorrentSessionAlertListener(this)
+    private val sessionManager = SessionManager()
+    private val dhtLock = Object()
+
 
     private class TorrentSessionAlertListener(
             torrentSession: TorrentSession
@@ -63,11 +66,6 @@ class TorrentSession(
 
         override fun types(): IntArray? = null
     }
-
-    // TODO: Indexes missing when torrent was started previously.
-    private var torrentSessionListener: TorrentSessionListener? = null
-    private val sessionManager = SessionManager()
-    private val dhtLock = Object()
 
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus {
         return TorrentSessionStatus.createInstance(
