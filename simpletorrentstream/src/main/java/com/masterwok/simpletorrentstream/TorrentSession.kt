@@ -70,14 +70,13 @@ class TorrentSession(
         override fun types(): IntArray? = null
     }
 
-    private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus {
-        return TorrentSessionStatus.createInstance(
-                torrentHandle
-                , bufferState
-                , saveLocationUri
-                , largestFileUri
-        )
-    }
+    private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
+            TorrentSessionStatus.createInstance(
+                    torrentHandle
+                    , bufferState
+                    , saveLocationUri
+                    , largestFileUri
+            )
 
     private fun onTorrentDeleteFailed(torrentDeleteFailedAlert: TorrentDeleteFailedAlert) {
         val torrentHandle = torrentDeleteFailedAlert.handle()
