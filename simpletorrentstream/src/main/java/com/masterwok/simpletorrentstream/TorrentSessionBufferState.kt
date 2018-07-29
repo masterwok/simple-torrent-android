@@ -2,8 +2,8 @@ package com.masterwok.simpletorrentstream
 
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
 class TorrentSessionBufferState constructor(
-        val startIndex: Int
-        , val endIndex: Int
+        val startIndex: Int = 0
+        , val endIndex: Int = 0
         , val bufferSize: Int
 ) {
     val pieceCount = (endIndex - startIndex) + 1

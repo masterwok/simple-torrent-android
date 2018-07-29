@@ -19,7 +19,9 @@ class TorrentSession(
         private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
+        private const val Tag = "TorrentSession"
         private const val MaxPrioritizedPieceCount = 8
+        private const val MinDhtNodes = 10
     }
 
     val isPaused get() = sessionManager.isPaused
@@ -28,6 +30,8 @@ class TorrentSession(
 
     private val alertListener = TorrentSessionAlertListener(this)
 
+    private var bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
+
     private class TorrentSessionAlertListener(
             torrentSession: TorrentSession
     ) : AlertListener {
@@ -35,21 +39,25 @@ class TorrentSession(
         private val torrentSession: WeakReference<TorrentSession> = WeakReference(torrentSession)
 
         override fun alert(alert: Alert<*>) {
-            when (alert.type()) {
-                AlertType.DHT_BOOTSTRAP -> torrentSession.get()?.onDhtBootstrap()
-                AlertType.DHT_STATS -> torrentSession.get()?.onDhtStats()
-                AlertType.METADATA_RECEIVED -> torrentSession.get()?.onMetadataReceived(alert as MetadataReceivedAlert)
-                AlertType.METADATA_FAILED -> torrentSession.get()?.onMetadataFailed(alert as MetadataFailedAlert)
-                AlertType.PIECE_FINISHED -> torrentSession.get()?.onPieceFinished(alert as PieceFinishedAlert)
-                AlertType.TORRENT_DELETE_FAILED -> torrentSession.get()?.onTorrentDeleteFailed(alert as TorrentDeleteFailedAlert)
-                AlertType.TORRENT_DELETED -> torrentSession.get()?.onTorrentDeleted(alert as TorrentDeletedAlert)
-                AlertType.TORRENT_REMOVED -> torrentSession.get()?.onTorrentRemoved(alert as TorrentRemovedAlert)
-                AlertType.TORRENT_RESUMED -> torrentSession.get()?.onTorrentResumed(alert as TorrentResumedAlert)
-                AlertType.TORRENT_PAUSED -> torrentSession.get()?.onTorrentPaused(alert as TorrentPausedAlert)
-                AlertType.TORRENT_FINISHED -> torrentSession.get()?.onTorrentFinished(alert as TorrentFinishedAlert)
-                AlertType.TORRENT_ERROR -> torrentSession.get()?.onTorrentError(alert as TorrentErrorAlert)
-                AlertType.ADD_TORRENT -> torrentSession.get()?.onAddTorrent(alert as AddTorrentAlert)
-                else -> Log.d("NON HANDLED ALERT", alert.toString())
+            try {
+                when (alert.type()) {
+                    AlertType.DHT_BOOTSTRAP -> torrentSession.get()?.onDhtBootstrap()
+                    AlertType.DHT_STATS -> torrentSession.get()?.onDhtStats()
+                    AlertType.METADATA_RECEIVED -> torrentSession.get()?.onMetadataReceived(alert as MetadataReceivedAlert)
+                    AlertType.METADATA_FAILED -> torrentSession.get()?.onMetadataFailed(alert as MetadataFailedAlert)
+                    AlertType.PIECE_FINISHED -> torrentSession.get()?.onPieceFinished(alert as PieceFinishedAlert)
+                    AlertType.TORRENT_DELETE_FAILED -> torrentSession.get()?.onTorrentDeleteFailed(alert as TorrentDeleteFailedAlert)
+                    AlertType.TORRENT_DELETED -> torrentSession.get()?.onTorrentDeleted(alert as TorrentDeletedAlert)
+                    AlertType.TORRENT_REMOVED -> torrentSession.get()?.onTorrentRemoved(alert as TorrentRemovedAlert)
+                    AlertType.TORRENT_RESUMED -> torrentSession.get()?.onTorrentResumed(alert as TorrentResumedAlert)
+                    AlertType.TORRENT_PAUSED -> torrentSession.get()?.onTorrentPaused(alert as TorrentPausedAlert)
+                    AlertType.TORRENT_FINISHED -> torrentSession.get()?.onTorrentFinished(alert as TorrentFinishedAlert)
+                    AlertType.TORRENT_ERROR -> torrentSession.get()?.onTorrentError(alert as TorrentErrorAlert)
+                    AlertType.ADD_TORRENT -> torrentSession.get()?.onAddTorrent(alert as AddTorrentAlert)
+                    else -> Log.d("UNHANDLED_ALERT", alert.toString())
+                }
+            } catch (e: Exception) {
+                Log.e(Tag, "An exception occurred within torrent session callback", e)
             }
         }
 
@@ -101,11 +109,9 @@ class TorrentSession(
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentHandle = metadataReceivedAlert.handle()
 
-        try {
-            torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
-        } catch (exception: Exception) {
-            // TODO: Fix ME
-        }
+        torrentHandle.status().state()
+
+        torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
 
         sessionManager.download(
                 torrentHandle.torrentFile()
@@ -113,7 +119,6 @@ class TorrentSession(
         )
     }
 
-    private lateinit var bufferState: TorrentSessionBufferState
 
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
@@ -182,7 +187,7 @@ class TorrentSession(
 
     private fun isDhtReady() = sessionManager
             .stats()
-            .dhtNodes() >= 10
+            .dhtNodes() >= MinDhtNodes
 
     /**
      * Download the torrent associated with the provided [magnetUri]. Abandon
