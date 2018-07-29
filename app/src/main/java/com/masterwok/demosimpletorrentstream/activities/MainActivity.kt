@@ -96,11 +96,9 @@ class MainActivity : AppCompatActivity() {
         override fun onTorrentPaused(torrentSessionStatus: TorrentSessionStatus) =
                 configure("onTorrentPaused", torrentSessionStatus)
 
-        // TODO: Fix state when stream has already been downloaded (see logs).
         override fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus) =
                 configure("onTorrentFinished", torrentSessionStatus)
 
-        // TODO: Ensure piece count is correct on finish (see logs).
         override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
                 configure("onPieceFinished", torrentSessionStatus)
 
