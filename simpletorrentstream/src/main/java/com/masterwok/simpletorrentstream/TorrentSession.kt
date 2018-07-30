@@ -208,21 +208,21 @@ class TorrentSession(
     private fun downloadMagnet(
             magnetUri: String
             , timeout: Int
-    ): Unit = synchronized(dhtLock) {
+    ): Boolean = synchronized(dhtLock) {
         // We must wait for DHT to start
         if (!isDhtReady()) {
             dhtLock.wait()
         }
 
-        sessionManager.fetchMagnet(
+        return sessionManager.fetchMagnet(
                 URLDecoder.decode(magnetUri, "utf-8")
                 , timeout
-        )
+        ) != null
     }
 
-    fun start(timeout: Int) {
+    fun start(timeout: Int): Boolean {
         // TODO: Handle HTTP torrent and File
-        downloadMagnet(torrentUri, timeout)
+        return downloadMagnet(torrentUri, timeout)
     }
 
     /**

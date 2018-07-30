@@ -40,7 +40,7 @@ class TorrentFragment : Fragment()
             torrentSession.setListener(this)
 
             startDownloadTask = DownloadTask(torrentSession, magnetUri)
-            startDownloadTask?.execute()
+            startDownloadTask?.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
     }
 
@@ -147,7 +147,11 @@ class TorrentFragment : Fragment()
         }
 
         override fun doInBackground(vararg args: Void) {
-            torrentSession.get()?.start(30)
+            val successful = torrentSession.get()?.start(30) ?: false
+
+            if (!successful) {
+                Log.e("TorrentFragment", "Download timed out.")
+            }
         }
     }
 
