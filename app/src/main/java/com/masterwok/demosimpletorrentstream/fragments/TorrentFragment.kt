@@ -1,5 +1,6 @@
 package com.masterwok.demosimpletorrentstream.fragments
 
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -33,7 +34,7 @@ class TorrentFragment : Fragment()
     companion object {
         fun newInstance(
                 tabIndex: Int
-                , magnetUri: String
+                , magnetUri: Uri
                 , torrentSessionOptions: TorrentSessionOptions
         ): TorrentFragment = TorrentFragment().apply {
             this.tabIndex = tabIndex
@@ -176,10 +177,10 @@ class TorrentFragment : Fragment()
     private class DownloadTask : AsyncTask<Void, Void, Unit> {
 
         private val torrentSession: WeakReference<TorrentSession>
-        val magnetUri: String
+        val magnetUri: Uri
 
         @Suppress("ConvertSecondaryConstructorToPrimary")
-        constructor(torrentSession: TorrentSession, magnetUri: String) : super() {
+        constructor(torrentSession: TorrentSession, magnetUri: Uri) : super() {
             this.torrentSession = WeakReference(torrentSession)
             this.magnetUri = magnetUri
         }

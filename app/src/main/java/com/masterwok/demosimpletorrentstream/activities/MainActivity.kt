@@ -1,6 +1,7 @@
 package com.masterwok.demosimpletorrentstream.activities
 
 import android.Manifest
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.support.design.widget.TabLayout
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         buttonAddTorrent.setOnClickListener {
             val tabFragment = TorrentFragment.newInstance(
                     torrentSessionPagerAdapter.count + 1
-                    , magnets[torrentSessionPagerAdapter.count]
+                    , Uri.parse(magnets[torrentSessionPagerAdapter.count])
                     , torrentSessionOptions
             )
 

@@ -19,7 +19,7 @@ import java.security.InvalidParameterException
 
 @Suppress("MemberVisibilityCanBePrivate")
 class TorrentSession(
-        val torrentUrl: String
+        val torrentUri: Uri
         , private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
@@ -237,15 +237,19 @@ class TorrentSession(
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
 
-        if (torrentUrl.startsWith("magnet")) {
-            return downloadFromMagnet(torrentUrl, timeout)
+        val path = torrentUri.toString()
+
+        if (path.startsWith("magnet")) {
+            return downloadFromMagnet(path, timeout)
         }
 
-        if (torrentUrl.startsWith("http") || torrentUrl.startsWith("https")) {
-            return downloadFromTorrent(torrentUrl, timeout)
+        if (path.startsWith("http") || path.startsWith("https")) {
+            return downloadFromTorrent(path, timeout)
         }
 
-        throw InvalidParameterException("Invalid torrent URL (must be: magnet, http, or https URL): $torrentUrl")
+        // TODO: Handle content or file URI
+
+        throw InvalidParameterException("Invalid torrent URL (must be: magnet, http, or https URL): $torrentUri")
     }
 
 
