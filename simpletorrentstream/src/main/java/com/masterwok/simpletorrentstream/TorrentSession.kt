@@ -14,10 +14,10 @@ import java.lang.ref.WeakReference
 import java.net.URLDecoder
 
 
-// TODO: Add remove torrent method.
 // TODO: Implement multiple torrent downloads.
 class TorrentSession(
-        private val torrentSessionOptions: TorrentSessionOptions
+        public val torrentUri: String
+        , private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
         private const val Tag = "TorrentSession"
@@ -200,12 +200,7 @@ class TorrentSession(
             .stats()
             .dhtNodes() >= MinDhtNodes
 
-    /**
-     * Download the torrent associated with the provided [magnetUri]. Abandon
-     * downloading the torrent if the magnet fails to resolve within the provided
-     * [timeout] in seconds.
-     */
-    fun downloadMagnet(
+    private fun downloadMagnet(
             magnetUri: String
             , timeout: Int
     ): Unit = synchronized(dhtLock) {
@@ -218,6 +213,11 @@ class TorrentSession(
                 URLDecoder.decode(magnetUri, "utf-8")
                 , timeout
         )
+    }
+
+    fun start(timeout: Int) {
+        // TODO: Handle HTTP torrent and File
+        downloadMagnet(torrentUri, timeout)
     }
 
     /**

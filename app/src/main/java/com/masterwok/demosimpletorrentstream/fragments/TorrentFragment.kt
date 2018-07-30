@@ -23,7 +23,6 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
     private var startDownloadTask: DownloadTask? = null
 
     private var tabIndex: Int = 0
-    private var magnetUri: String = ""
 
     companion object {
         fun newInstance(
@@ -32,9 +31,8 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
                 , torrentSessionOptions: TorrentSessionOptions
         ): TorrentFragment = TorrentFragment().apply {
             this.tabIndex = tabIndex
-            this.magnetUri = magnetUri
 
-            torrentSession = TorrentSession(torrentSessionOptions)
+            torrentSession = TorrentSession(magnetUri, torrentSessionOptions)
             torrentSession.setListener(torrentStreamListener)
 
             startDownloadTask = DownloadTask(torrentSession, magnetUri)
@@ -135,7 +133,7 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
         }
 
         override fun doInBackground(vararg args: Void) {
-            torrentSession.get()?.downloadMagnet(magnetUri, 30)
+            torrentSession.get()?.start(30)
         }
     }
 
