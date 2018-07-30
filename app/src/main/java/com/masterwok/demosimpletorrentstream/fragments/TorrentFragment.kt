@@ -147,7 +147,8 @@ class TorrentFragment : Fragment()
         }
 
         override fun doInBackground(vararg args: Void) {
-            val successful = torrentSession.get()?.start(30) ?: false
+            // Start the torrent and abort after 60 seconds if it fails to start.
+            val successful = torrentSession.get()?.start(60) ?: false
 
             if (!successful) {
                 Log.e("TorrentFragment", "Download timed out.")
