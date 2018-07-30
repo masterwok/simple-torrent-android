@@ -16,7 +16,9 @@ import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import java.lang.ref.WeakReference
 
-class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus> {
+class TorrentFragment : Fragment()
+        , TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus>
+        , TorrentSessionListener {
 
     private var torrentPiecesFragment: TorrentPiecesFragment? = null
     private lateinit var buttonPauseResume: AppCompatButton
@@ -35,7 +37,7 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
             this.tabIndex = tabIndex
 
             torrentSession = TorrentSession(magnetUri, torrentSessionOptions)
-            torrentSession.setListener(torrentStreamListener)
+            torrentSession.setListener(this)
 
             startDownloadTask = DownloadTask(torrentSession, magnetUri)
             startDownloadTask?.execute()
@@ -89,50 +91,48 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
 
     override fun getTitle(): String = "Torrent: $tabIndex"
 
-    private val torrentStreamListener = object : TorrentSessionListener {
 
-        override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onAddTorrent", torrentSessionStatus)
+    override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onAddTorrent", torrentSessionStatus)
 
-        override fun onTorrentRemoved(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentRemoved", torrentSessionStatus)
+    override fun onTorrentRemoved(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentRemoved", torrentSessionStatus)
 
-        override fun onTorrentDeleted(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentRemoved", torrentSessionStatus)
+    override fun onTorrentDeleted(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentRemoved", torrentSessionStatus)
 
-        override fun onTorrentDeleteFailed(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentDeleteFailed", torrentSessionStatus)
+    override fun onTorrentDeleteFailed(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentDeleteFailed", torrentSessionStatus)
 
-        override fun onTorrentError(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentError", torrentSessionStatus)
+    override fun onTorrentError(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentError", torrentSessionStatus)
 
-        override fun onTorrentResumed(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentResumed", torrentSessionStatus)
+    override fun onTorrentResumed(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentResumed", torrentSessionStatus)
 
-        override fun onTorrentPaused(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentPaused", torrentSessionStatus)
+    override fun onTorrentPaused(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentPaused", torrentSessionStatus)
 
-        override fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onTorrentFinished", torrentSessionStatus)
+    override fun onTorrentFinished(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onTorrentFinished", torrentSessionStatus)
 
-        override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onPieceFinished", torrentSessionStatus)
+    override fun onPieceFinished(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onPieceFinished", torrentSessionStatus)
 
-        override fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onMetadataFailed", torrentSessionStatus)
+    override fun onMetadataFailed(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onMetadataFailed", torrentSessionStatus)
 
-        override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
-                configure("onMetadataReceived", torrentSessionStatus)
+    override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onMetadataReceived", torrentSessionStatus)
 
 
-        private fun configure(
-                tag: String
-                , torrentSessionStatus: TorrentSessionStatus
-        ) {
-            torrentPiecesFragment?.configure(torrentSessionStatus)
+    private fun configure(
+            tag: String
+            , torrentSessionStatus: TorrentSessionStatus
+    ) {
+        torrentPiecesFragment?.configure(torrentSessionStatus)
 
-            Log.d(tag, torrentSessionStatus.torrentSessionBufferState.toString())
-        }
+        Log.d(tag, torrentSessionStatus.torrentSessionBufferState.toString())
     }
 
     private class DownloadTask : AsyncTask<Void, Void, Unit> {
