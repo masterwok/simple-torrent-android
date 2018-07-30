@@ -52,7 +52,7 @@ class TorrentSessionStatus private constructor(
 
     override fun toString(): String {
         return "State: $state" +
-                ", SeederCount: $seederCount" +
+                ", Seeder Count: $seederCount" +
                 ", Download Rate: $downloadRate" +
                 ", Upload Rate: $uploadRate" +
                 ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
