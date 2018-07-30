@@ -46,6 +46,11 @@ class TorrentSession(
 
         override fun alert(alert: Alert<*>) {
             try {
+                if (alert.isTorrentAlert() && !alert.hasValidTorrentHandle()) {
+                    Log.w(Tag, "Ignoring alert with invalid torrent handle: ${alert.type()}")
+                    return
+                }
+
                 when (alert.type()) {
                     AlertType.DHT_BOOTSTRAP -> torrentSession.get()?.onDhtBootstrap()
                     AlertType.DHT_STATS -> torrentSession.get()?.onDhtStats()
@@ -60,7 +65,7 @@ class TorrentSession(
                     AlertType.TORRENT_FINISHED -> torrentSession.get()?.onTorrentFinished(alert as TorrentFinishedAlert)
                     AlertType.TORRENT_ERROR -> torrentSession.get()?.onTorrentError(alert as TorrentErrorAlert)
                     AlertType.ADD_TORRENT -> torrentSession.get()?.onAddTorrent(alert as AddTorrentAlert)
-                    else -> Log.d("UNHANDLED_ALERT", alert.toString())
+                    else -> Log.d(Tag, "Unhandled alert: $alert")
                 }
             } catch (e: Exception) {
                 Log.e(Tag, "An exception occurred within torrent session callback", e)
