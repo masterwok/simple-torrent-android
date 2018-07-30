@@ -39,7 +39,7 @@ class TorrentFragment : Fragment()
             this.tabIndex = tabIndex
 
             torrentSession = TorrentSession(magnetUri, torrentSessionOptions)
-            torrentSession.setListener(this)
+            torrentSession.listener = this
 
             startDownloadTask = DownloadTask(torrentSession, magnetUri)
             startDownloadTask?.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
@@ -85,7 +85,7 @@ class TorrentFragment : Fragment()
         super.onDestroy()
 
         startDownloadTask?.cancel(true)
-        torrentSession.setListener(null)
+        torrentSession.listener = null
         torrentSession.stop()
     }
 

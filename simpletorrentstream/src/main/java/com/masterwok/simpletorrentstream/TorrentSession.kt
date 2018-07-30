@@ -29,12 +29,14 @@ class TorrentSession(
 
     val isRunning get() = sessionManager.isRunning
 
-    private var torrentSessionListener: TorrentSessionListener? = null
-    private var bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
+    var listener: TorrentSessionListener? = null
+
+    private lateinit var bufferState: TorrentSessionBufferState
+    private lateinit var saveLocationUri: Uri
+    private lateinit var largestFileUri: Uri
+
     private val alertListener = TorrentSessionAlertListener(this)
     private val sessionManager = SessionManager()
-    private var saveLocationUri: Uri = Uri.EMPTY
-    private var largestFileUri: Uri = Uri.EMPTY
     private val dhtLock = Object()
 
 
@@ -86,31 +88,31 @@ class TorrentSession(
     private fun onTorrentDeleteFailed(torrentDeleteFailedAlert: TorrentDeleteFailedAlert) {
         val torrentHandle = torrentDeleteFailedAlert.handle()
 
-        torrentSessionListener?.onTorrentDeleteFailed(createTorrentSessionStatus(torrentHandle))
+        listener?.onTorrentDeleteFailed(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onTorrentPaused(torrentPausedAlert: TorrentPausedAlert) {
         val torrentHandle = torrentPausedAlert.handle()
 
-        torrentSessionListener?.onTorrentPaused(createTorrentSessionStatus(torrentHandle))
+        listener?.onTorrentPaused(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onTorrentResumed(torrentResumedAlert: TorrentResumedAlert) {
         val torrentHandle = torrentResumedAlert.handle()
 
-        torrentSessionListener?.onTorrentResumed(createTorrentSessionStatus(torrentHandle))
+        listener?.onTorrentResumed(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onTorrentRemoved(torrentRemovedAlert: TorrentRemovedAlert) {
         val torrentHandle = torrentRemovedAlert.handle()
 
-        torrentSessionListener?.onTorrentRemoved(createTorrentSessionStatus(torrentHandle))
+        listener?.onTorrentRemoved(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onTorrentDeleted(torrentDeletedAlert: TorrentDeletedAlert) {
         val torrentHandle = torrentDeletedAlert.handle()
 
-        torrentSessionListener?.onTorrentDeleted(createTorrentSessionStatus(torrentHandle))
+        listener?.onTorrentDeleted(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
@@ -119,14 +121,13 @@ class TorrentSession(
         largestFileUri = torrentHandle.getLargestFileUri()
         saveLocationUri = torrentHandle.getSaveLocation()
 
-        torrentSessionListener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
+        listener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
 
         sessionManager.download(
                 torrentHandle.torrentFile()
                 , torrentSessionOptions.downloadLocation
         )
     }
-
 
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
@@ -143,7 +144,7 @@ class TorrentSession(
 
         torrentHandle.setBufferPriorities(bufferState)
 
-        torrentSessionListener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
+        listener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
@@ -160,7 +161,7 @@ class TorrentSession(
 
         torrentHandle.setBufferPriorities(bufferState)
 
-        torrentSessionListener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
+        listener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
 
         addTorrentAlert
                 .handle()
@@ -168,17 +169,17 @@ class TorrentSession(
     }
 
     private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) =
-            torrentSessionListener?.onTorrentError(
+            listener?.onTorrentError(
                     createTorrentSessionStatus(torrentErrorAlert.handle())
             )
 
     private fun onTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) =
-            torrentSessionListener?.onTorrentFinished(
+            listener?.onTorrentFinished(
                     createTorrentSessionStatus(torrentFinishedAlert.handle())
             )
 
     private fun onMetadataFailed(metadataFailedAlert: MetadataFailedAlert) =
-            torrentSessionListener?.onMetadataFailed(
+            listener?.onMetadataFailed(
                     createTorrentSessionStatus(metadataFailedAlert.handle())
             )
 
@@ -221,15 +222,12 @@ class TorrentSession(
     }
 
     fun start(timeout: Int): Boolean {
+        bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
+        saveLocationUri = Uri.EMPTY
+        largestFileUri = Uri.EMPTY
+
         // TODO: Handle HTTP torrent and File
         return downloadMagnet(torrentUri, timeout)
-    }
-
-    /**
-     * Set a callback listener to receive torrent session alerts.
-     */
-    fun setListener(torrentSessionListener: TorrentSessionListener?) {
-        this.torrentSessionListener = torrentSessionListener
     }
 
     /**
