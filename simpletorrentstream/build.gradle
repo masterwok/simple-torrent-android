@@ -27,7 +27,6 @@ android {
 ext {
     version_support = '27.1.1'
     version_jlibtorrent = '1.2.0.16'
-    version_kotlinx_coroutines = '0.23.4'
 }
 
 dependencies {
@@ -41,10 +40,6 @@ dependencies {
     implementation "com.frostwire:jlibtorrent-android-arm64:$version_jlibtorrent"
     implementation "com.frostwire:jlibtorrent-android-x86:$version_jlibtorrent"
     implementation "com.frostwire:jlibtorrent-android-x86_64:$version_jlibtorrent"
-
-    // Kotlin co-routines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_kotlinx_coroutines"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version_kotlinx_coroutines"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
