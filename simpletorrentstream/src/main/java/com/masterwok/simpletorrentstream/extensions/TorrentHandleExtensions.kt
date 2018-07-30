@@ -4,17 +4,23 @@ import android.net.Uri
 import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.TorrentHandle
 import com.masterwok.simpletorrentstream.TorrentSessionBufferState
+import java.io.File
 
 
 /**
- * Get the total number of pieces of the [TorrentHandle].
+ * Get the seeder count of the [TorrentHandle].
  */
-internal fun TorrentHandle.getPieceCount(): Int = torrentFile().numPieces()
+internal fun TorrentHandle.getSeederCount(): Int = status().numSeeds()
 
 /**
- * Get the total bytes wanted (to be downloaded) of the [TorrentHandle].
+ * Get the upload rate of the [TorrentHandle] in bytes/second.
  */
-internal fun TorrentHandle.isFinished(): Boolean = status().isFinished
+internal fun TorrentHandle.getUploadRate(): Int = status().uploadRate()
+
+/**
+ * Get the download rate of the [TorrentHandle] in bytes/second.
+ */
+internal fun TorrentHandle.getDownloadRate(): Int = status().downloadRate()
 
 /**
  * Get the total bytes wanted (to be downloaded) of the [TorrentHandle].
@@ -32,20 +38,12 @@ internal fun TorrentHandle.getTotalDone(): Long = status().totalDone()
 internal fun TorrentHandle.getProgress(): Float = status().progress()
 
 /**
- * Get the save location of the [TorrentHandle].
+ * Get the Uri of the largest file including the [downloadLocation] of the [TorrentHandle].
  */
-internal fun TorrentHandle.getSaveLocation(): Uri = Uri.parse("${savePath()}/${name()}")
-
-/**
- * Get the Uri of the largest file of the [TorrentHandle].
- */
-internal fun TorrentHandle.getLargestFileUri(): Uri =
-        Uri.parse("${getSaveLocation()}/${getLargestFileName()}")
-
-/**
- * Get the file name of the largest file of the [TorrentHandle].
- */
-internal fun TorrentHandle.getLargestFileName(): String = torrentFile().getLargestFileName()
+internal fun TorrentHandle.getLargestFileUri(downloadLocation: File): Uri = Uri.fromFile(File(
+        downloadLocation
+        , torrentFile().files().filePath(torrentFile().getLargestFileIndex())
+))
 
 /**
  * Get the largest file index of the [TorrentHandle].

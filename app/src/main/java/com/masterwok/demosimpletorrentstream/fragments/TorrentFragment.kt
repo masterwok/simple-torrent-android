@@ -94,6 +94,8 @@ class TorrentFragment : Fragment()
 
     override fun getTitle(): String = "Torrent: $tabIndex"
 
+    override fun onBlockUploaded(torrentSessionStatus: TorrentSessionStatus) =
+            configure("onBlockUploaded", torrentSessionStatus)
 
     override fun onAddTorrent(torrentSessionStatus: TorrentSessionStatus) =
             configure("onAddTorrent", torrentSessionStatus)
@@ -162,13 +164,13 @@ class TorrentFragment : Fragment()
             tag: String
             , torrentSessionStatus: TorrentSessionStatus
     ) {
+        Log.d(tag, torrentSessionStatus.toString())
+
         this.torrentSessionStatus = torrentSessionStatus
 
         torrentPiecesFragment?.configure(torrentSessionStatus)
 
         setPauseResumeButtonText()
-
-        Log.d(tag, torrentSessionStatus.torrentSessionBufferState.toString())
     }
 
     private class DownloadTask : AsyncTask<Void, Void, Unit> {

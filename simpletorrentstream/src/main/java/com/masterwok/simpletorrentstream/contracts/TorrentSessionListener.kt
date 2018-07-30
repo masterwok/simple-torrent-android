@@ -26,4 +26,6 @@ interface TorrentSessionListener {
 
     fun onTorrentResumed(torrentSessionStatus: TorrentSessionStatus)
 
+    fun onBlockUploaded(torrentSessionStatus: TorrentSessionStatus)
+
 }

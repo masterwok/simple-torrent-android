@@ -15,8 +15,9 @@ import java.net.URLDecoder
 
 
 // TODO: Implement multiple torrent downloads.
+@Suppress("MemberVisibilityCanBePrivate")
 class TorrentSession(
-        public val torrentUri: String
+        val torrentUri: String
         , private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
@@ -67,6 +68,7 @@ class TorrentSession(
                     AlertType.TORRENT_FINISHED -> torrentSession.get()?.onTorrentFinished(alert as TorrentFinishedAlert)
                     AlertType.TORRENT_ERROR -> torrentSession.get()?.onTorrentError(alert as TorrentErrorAlert)
                     AlertType.ADD_TORRENT -> torrentSession.get()?.onAddTorrent(alert as AddTorrentAlert)
+                    AlertType.BLOCK_UPLOADED -> torrentSession.get()?.onBlockUploaded(alert as BlockUploadedAlert)
                     else -> Log.d(Tag, "Unhandled alert: $alert")
                 }
             } catch (e: Exception) {
@@ -75,6 +77,12 @@ class TorrentSession(
         }
 
         override fun types(): IntArray? = null
+    }
+
+    private fun onBlockUploaded(blockUploadedAlert: BlockUploadedAlert) {
+        val torrentHandle = blockUploadedAlert.handle()
+
+        listener?.onBlockUploaded(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
@@ -118,8 +126,8 @@ class TorrentSession(
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentHandle = metadataReceivedAlert.handle()
 
-        largestFileUri = torrentHandle.getLargestFileUri()
-        saveLocationUri = torrentHandle.getSaveLocation()
+        largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
+        saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
 
         listener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
 

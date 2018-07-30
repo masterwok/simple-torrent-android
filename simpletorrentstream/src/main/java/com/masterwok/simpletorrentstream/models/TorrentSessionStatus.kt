@@ -4,13 +4,14 @@ import android.net.Uri
 import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.TorrentStatus
 import com.masterwok.simpletorrentstream.TorrentSessionBufferState
-import com.masterwok.simpletorrentstream.extensions.getProgress
-import com.masterwok.simpletorrentstream.extensions.getTotalDone
-import com.masterwok.simpletorrentstream.extensions.getTotalWanted
+import com.masterwok.simpletorrentstream.extensions.*
 
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class TorrentSessionStatus private constructor(
         val state: State
+        , val seederCount: Int
+        , val downloadRate: Int
+        , val uploadRate: Int
         , val progress: Float
         , val bytesDownloaded: Long
         , val bytesWanted: Long
@@ -26,6 +27,9 @@ class TorrentSessionStatus private constructor(
                 , largestFileUri: Uri
         ): TorrentSessionStatus = TorrentSessionStatus(
                 torrentHandle.status().state().toTorrentStreamStatusSate()
+                , torrentHandle.getSeederCount()
+                , torrentHandle.getDownloadRate()
+                , torrentHandle.getUploadRate()
                 , torrentHandle.getProgress()
                 , torrentHandle.getTotalDone()
                 , torrentHandle.getTotalWanted()
@@ -44,6 +48,17 @@ class TorrentSessionStatus private constructor(
             TorrentStatus.State.CHECKING_RESUME_DATA -> State.CHECKING_RESUME_DATA
             TorrentStatus.State.UNKNOWN -> State.UNKNOWN
         }
+    }
+
+    override fun toString(): String {
+        return "State: $state" +
+                ", SeederCount: $seederCount" +
+                ", Download Rate: $downloadRate" +
+                ", Upload Rate: $uploadRate" +
+                ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
+                ", Save Location: $saveLocationUri" +
+                ", Video File: $videoFileUri" +
+                ", $torrentSessionBufferState"
     }
 
     enum class State {
