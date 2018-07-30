@@ -61,6 +61,7 @@ class TorrentFragment : Fragment()
 
         bindViewComponents()
         subscribeToViewComponents()
+        setPauseResumeButtonText()
     }
 
     private fun bindViewComponents() {
@@ -128,8 +129,13 @@ class TorrentFragment : Fragment()
             configure("onMetadataReceived", torrentSessionStatus)
 
     private fun setPauseResumeButtonText() {
-        if (torrentSessionStatus?.state == TorrentSessionStatus.State.SEEDING
-                || torrentSessionStatus?.state == TorrentSessionStatus.State.FINISHED) {
+        if (torrentSessionStatus?.state == TorrentSessionStatus.State.SEEDING) {
+            buttonPauseResume?.setText(R.string.button_seeding)
+            buttonPauseResume?.isEnabled = false
+            return
+        }
+
+        if (torrentSessionStatus?.state == TorrentSessionStatus.State.FINISHED) {
             buttonPauseResume?.setText(R.string.button_finished)
             buttonPauseResume?.isEnabled = false
             return
