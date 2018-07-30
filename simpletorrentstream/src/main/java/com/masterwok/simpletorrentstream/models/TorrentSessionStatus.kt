@@ -55,9 +55,9 @@ class TorrentSessionStatus private constructor(
                 ", Download Rate: $downloadRate" +
                 ", Upload Rate: $uploadRate" +
                 ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
+                ", $torrentSessionBufferState" +
                 ", Save Location: $saveLocationUri" +
-                ", Video File: $videoFileUri" +
-                ", $torrentSessionBufferState"
+                ", Video File: $videoFileUri"
     }
 
     enum class State {

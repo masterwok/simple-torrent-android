@@ -15,7 +15,6 @@ import java.lang.ref.WeakReference
 import java.net.URLDecoder
 
 
-// TODO: Implement multiple torrent downloads.
 @Suppress("MemberVisibilityCanBePrivate")
 class TorrentSession(
         val torrentUri: String
@@ -48,6 +47,7 @@ class TorrentSession(
 
         private val torrentSession: WeakReference<TorrentSession> = WeakReference(torrentSession)
 
+        @Synchronized
         override fun alert(alert: Alert<*>) {
             try {
                 if (alert.isTorrentAlert() && !alert.hasValidTorrentHandle()) {
