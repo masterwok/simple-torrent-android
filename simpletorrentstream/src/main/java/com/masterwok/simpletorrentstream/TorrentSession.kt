@@ -129,8 +129,8 @@ class TorrentSession(
         val pieceIndex = pieceFinishedAlert.pieceIndex()
 
         if (pieceIndex < bufferState.startIndex || pieceIndex > bufferState.endIndex) {
-            // TODO: WHY IS THIS HAPPENING? FIX THIS.
-            Log.e("IGNORE", "IGNORING OUT OF RANGE PIECE")
+            // TODO: WHY IS THIS HAPPENING?
+            Log.w(Tag, "Out of range piece downloaded.")
             return
         }
 

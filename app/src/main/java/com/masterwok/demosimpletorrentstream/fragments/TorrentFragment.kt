@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference
 
 class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus> {
 
-    private lateinit var torrentPiecesFragment: TorrentPiecesFragment
+    private var torrentPiecesFragment: TorrentPiecesFragment? = null
 
     private lateinit var torrentSession: TorrentSession
     private var startDownloadTask: DownloadTask? = null
@@ -44,16 +44,16 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
             inflater: LayoutInflater
             , container: ViewGroup?
             , savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(
-                R.layout.fragment_torrent
-                , container
-                , false
-        )
+    ): View = inflater.inflate(
+            R.layout.fragment_torrent
+            , container
+            , false
+    )
 
-        bindViewComponents(view)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-        return view
+        torrentPiecesFragment = childFragmentManager.findFragmentById(R.id.fragment_torrent_pieces) as TorrentPiecesFragment
     }
 
     override fun onDestroy() {
@@ -64,11 +64,8 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
         torrentSession.stop()
     }
 
-    private fun bindViewComponents(view: View) {
-        torrentPiecesFragment = childFragmentManager.findFragmentById(R.id.fragment_torrent_pieces) as TorrentPiecesFragment
+    override fun configure(model: TorrentSessionStatus) {
     }
-
-    override fun configure(model: TorrentSessionStatus) = torrentPiecesFragment.configure(model)
 
     override fun getTitle(): String = "Torrent: $tabIndex"
 
@@ -111,13 +108,9 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
                 tag: String
                 , torrentSessionStatus: TorrentSessionStatus
         ) {
-            try {
-                torrentPiecesFragment.configure(torrentSessionStatus)
+            torrentPiecesFragment?.configure(torrentSessionStatus)
 
-                Log.d(tag, torrentSessionStatus.torrentSessionBufferState.toString())
-            } catch (ex: Exception) {
-                Log.d("ERROR", ex.toString())
-            }
+            Log.d(tag, torrentSessionStatus.torrentSessionBufferState.toString())
         }
     }
 
