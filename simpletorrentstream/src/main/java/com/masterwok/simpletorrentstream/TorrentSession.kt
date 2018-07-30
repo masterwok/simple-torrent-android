@@ -9,6 +9,7 @@ import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.alerts.*
 import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentstream.extensions.*
+import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import java.lang.ref.WeakReference
 import java.net.URLDecoder

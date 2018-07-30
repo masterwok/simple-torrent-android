@@ -1,5 +1,6 @@
 package com.masterwok.simpletorrentstream
 
+import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import org.junit.Test

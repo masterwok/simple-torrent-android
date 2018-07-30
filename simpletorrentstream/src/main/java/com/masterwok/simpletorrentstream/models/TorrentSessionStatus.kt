@@ -3,7 +3,6 @@ package com.masterwok.simpletorrentstream.models
 import android.net.Uri
 import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.TorrentStatus
-import com.masterwok.simpletorrentstream.TorrentSessionBufferState
 import com.masterwok.simpletorrentstream.extensions.*
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")

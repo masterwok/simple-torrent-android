@@ -3,7 +3,7 @@ package com.masterwok.simpletorrentstream.extensions
 import android.net.Uri
 import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.TorrentHandle
-import com.masterwok.simpletorrentstream.TorrentSessionBufferState
+import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import java.io.File
 
 

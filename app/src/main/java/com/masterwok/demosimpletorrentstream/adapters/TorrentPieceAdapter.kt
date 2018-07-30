@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
-import com.masterwok.simpletorrentstream.TorrentSessionBufferState
+import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch

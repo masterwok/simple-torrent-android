@@ -1,4 +1,4 @@
-package com.masterwok.simpletorrentstream
+package com.masterwok.simpletorrentstream.models
 
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
 class TorrentSessionBufferState constructor(
