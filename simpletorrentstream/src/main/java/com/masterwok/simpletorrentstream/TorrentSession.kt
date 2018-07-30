@@ -2,15 +2,14 @@ package com.masterwok.simpletorrentstream
 
 import android.net.Uri
 import android.util.Log
-import com.frostwire.jlibtorrent.AlertListener
-import com.frostwire.jlibtorrent.Priority
-import com.frostwire.jlibtorrent.SessionManager
-import com.frostwire.jlibtorrent.TorrentHandle
+import android.webkit.URLUtil
+import com.frostwire.jlibtorrent.*
 import com.frostwire.jlibtorrent.alerts.*
 import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentstream.extensions.*
 import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
+import java.io.File
 import java.lang.ref.WeakReference
 import java.net.URL
 import java.net.URLDecoder
@@ -217,7 +216,7 @@ class TorrentSession(
             .stats()
             .dhtNodes() >= MinDhtNodes
 
-    private fun downloadFromMagnet(
+    private fun downloadMagnet(
             magnetUrl: String
             , timeout: Int
     ): Boolean = synchronized(dhtLock) {
@@ -232,10 +231,10 @@ class TorrentSession(
         ) != null
     }
 
-    private fun downloadFromTorrent(
+    private fun downloadNetworkTorrent(
             torrentUrl: String
             , timeout: Int
-    ): Boolean = sessionManager.downloadTorrent(
+    ): Boolean = sessionManager.downloadNetworkTorrent(
             torrentSessionOptions.downloadLocation
             , URL(torrentUrl)
             , timeout
@@ -252,15 +251,24 @@ class TorrentSession(
 
         val path = torrentUri.toString()
 
+        if (URLUtil.isNetworkUrl(path)) {
+            return downloadNetworkTorrent(path, timeout)
+        }
+
         if (path.startsWith("magnet")) {
-            return downloadFromMagnet(path, timeout)
+            return downloadMagnet(path, timeout)
         }
 
-        if (path.startsWith("http") || path.startsWith("https")) {
-            return downloadFromTorrent(path, timeout)
+        if (URLUtil.isFileUrl(path)) {
+            sessionManager.download(
+                    TorrentInfo(File(path))
+                    , torrentSessionOptions.downloadLocation
+            )
         }
 
-        // TODO: Handle content or file URI
+        if (URLUtil.isContentUrl(path)) {
+            // TODO: Implement for input streams
+        }
 
         throw InvalidParameterException("Invalid torrent URL (must be: magnet, http, or https URL): $torrentUri")
     }

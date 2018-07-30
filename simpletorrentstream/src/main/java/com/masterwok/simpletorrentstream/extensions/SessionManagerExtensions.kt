@@ -11,7 +11,7 @@ import java.net.URL
  * Download a torrent from the [torrentUrl] to the [downloadLocation] destination. The
  * download will be aborted if it does not complete before the provided [timeout].
  */
-internal fun SessionManager.downloadTorrent(
+internal fun SessionManager.downloadNetworkTorrent(
         downloadLocation: File
         , torrentUrl: URL
         , timeout: Int
