@@ -19,6 +19,7 @@ import java.lang.ref.WeakReference
 class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus> {
 
     private var torrentPiecesFragment: TorrentPiecesFragment? = null
+    private lateinit var buttonPauseResume: AppCompatButton
 
     private lateinit var torrentSession: TorrentSession
     private var startDownloadTask: DownloadTask? = null
@@ -54,9 +55,16 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        torrentPiecesFragment = childFragmentManager.findFragmentById(R.id.fragment_torrent_pieces) as TorrentPiecesFragment
-        var buttonPauseResume = view.findViewById<AppCompatButton>(R.id.button_pause_resume)
+        bindViewComponents()
+        subscribeToViewComponents()
+    }
 
+    private fun bindViewComponents() {
+        torrentPiecesFragment = childFragmentManager.findFragmentById(R.id.fragment_torrent_pieces) as TorrentPiecesFragment
+        buttonPauseResume = view!!.findViewById(R.id.button_pause_resume)
+    }
+
+    private fun subscribeToViewComponents() {
         buttonPauseResume.setOnClickListener {
             if (torrentSession.isPaused) {
                 torrentSession.resume()
@@ -115,6 +123,7 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
 
         override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
                 configure("onMetadataReceived", torrentSessionStatus)
+
 
         private fun configure(
                 tag: String
