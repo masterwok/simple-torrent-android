@@ -126,7 +126,15 @@ class TorrentSession(
     private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
         val torrentHandle = pieceFinishedAlert.handle()
 
-        bufferState.setPieceDownloaded(pieceFinishedAlert.pieceIndex())
+        val pieceIndex = pieceFinishedAlert.pieceIndex()
+
+        if (pieceIndex < bufferState.startIndex || pieceIndex > bufferState.endIndex) {
+            // TODO: WHY IS THIS HAPPENING? FIX THIS.
+            Log.e("IGNORE", "IGNORING OUT OF RANGE PIECE")
+            return
+        }
+
+        bufferState.setPieceDownloaded(pieceIndex)
 
         torrentHandle.setBufferPriorities(bufferState)
 
