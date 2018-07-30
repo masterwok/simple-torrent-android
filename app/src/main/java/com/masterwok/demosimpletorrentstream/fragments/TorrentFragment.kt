@@ -1,5 +1,6 @@
 package com.masterwok.demosimpletorrentstream.fragments
 
+import android.content.Context
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
@@ -33,7 +34,8 @@ class TorrentFragment : Fragment()
 
     companion object {
         fun newInstance(
-                tabIndex: Int
+                context: Context
+                , tabIndex: Int
                 , magnetUri: Uri
                 , torrentSessionOptions: TorrentSessionOptions
         ): TorrentFragment = TorrentFragment().apply {
@@ -42,7 +44,7 @@ class TorrentFragment : Fragment()
             torrentSession = TorrentSession(magnetUri, torrentSessionOptions)
             torrentSession.listener = this
 
-            startDownloadTask = DownloadTask(torrentSession, magnetUri)
+            startDownloadTask = DownloadTask(context, torrentSession, magnetUri)
             startDownloadTask?.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         }
     }
@@ -176,18 +178,24 @@ class TorrentFragment : Fragment()
 
     private class DownloadTask : AsyncTask<Void, Void, Unit> {
 
+        private val context: WeakReference<Context>
         private val torrentSession: WeakReference<TorrentSession>
         val magnetUri: Uri
 
         @Suppress("ConvertSecondaryConstructorToPrimary")
-        constructor(torrentSession: TorrentSession, magnetUri: Uri) : super() {
+        constructor(
+                context: Context
+                , torrentSession: TorrentSession
+                , magnetUri: Uri
+        ) : super() {
+            this.context = WeakReference(context)
             this.torrentSession = WeakReference(torrentSession)
             this.magnetUri = magnetUri
         }
 
         override fun doInBackground(vararg args: Void) {
             // Start the torrent and abort after 60 seconds if it fails to start.
-            val successful = torrentSession.get()?.start(60) ?: false
+            val successful = torrentSession.get()?.start(context.get()!!, 60) ?: false
 
             if (!successful) {
                 Log.e("TorrentFragment", "Download timed out.")
