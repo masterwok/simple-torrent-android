@@ -232,6 +232,19 @@ class TorrentSession(
         ) != null
     }
 
+    private fun downloadFromTorrent(
+            torrentUrl: String
+            , timeout: Int
+    ): Boolean = sessionManager.downloadTorrent(
+            torrentSessionOptions.downloadLocation
+            , URL(torrentUrl)
+            , timeout
+    )
+
+    /**
+     * Start the torrent session and abort if the session takes longer
+     * than the provided [timeout] to start.
+     */
     fun start(timeout: Int): Boolean {
         bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
         saveLocationUri = Uri.EMPTY
@@ -251,16 +264,6 @@ class TorrentSession(
 
         throw InvalidParameterException("Invalid torrent URL (must be: magnet, http, or https URL): $torrentUri")
     }
-
-
-    private fun downloadFromTorrent(
-            torrentUrl: String
-            , timeout: Int
-    ): Boolean = sessionManager.downloadTorrent(
-            torrentSessionOptions.downloadLocation
-            , URL(torrentUrl)
-            , timeout
-    )
 
     /**
      * Stop the torrent session. This is an expensive operation and should not be
