@@ -3,12 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimary"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/button_pause_resume"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:minHeight="100dp"
+        android:text="@string/button_pause"
+        android:textColor="@android:color/white">
+    </android.support.v7.widget.AppCompatButton>
 
     <fragment
         android:id="@+id/fragment_torrent_pieces"
         android:name="com.masterwok.demosimpletorrentstream.fragments.TorrentPiecesFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

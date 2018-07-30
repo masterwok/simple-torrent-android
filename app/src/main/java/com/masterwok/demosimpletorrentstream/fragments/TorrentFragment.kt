@@ -3,6 +3,7 @@ package com.masterwok.demosimpletorrentstream.fragments
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.AppCompatButton
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -50,10 +51,21 @@ class TorrentFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentS
             , false
     )
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         torrentPiecesFragment = childFragmentManager.findFragmentById(R.id.fragment_torrent_pieces) as TorrentPiecesFragment
+        var buttonPauseResume = view.findViewById<AppCompatButton>(R.id.button_pause_resume)
+
+        buttonPauseResume.setOnClickListener {
+            if (torrentSession.isPaused) {
+                torrentSession.resume()
+                buttonPauseResume.setText(R.string.button_pause)
+            } else {
+                torrentSession.pause()
+                buttonPauseResume.setText(R.string.button_resume)
+            }
+        }
     }
 
     override fun onDestroy() {
