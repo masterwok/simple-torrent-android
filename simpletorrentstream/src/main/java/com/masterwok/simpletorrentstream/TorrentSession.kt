@@ -12,12 +12,14 @@ import com.masterwok.simpletorrentstream.extensions.*
 import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
 import java.lang.ref.WeakReference
+import java.net.URL
 import java.net.URLDecoder
+import java.security.InvalidParameterException
 
 
 @Suppress("MemberVisibilityCanBePrivate")
 class TorrentSession(
-        val torrentUri: String
+        val torrentUrl: String
         , private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
@@ -215,8 +217,8 @@ class TorrentSession(
             .stats()
             .dhtNodes() >= MinDhtNodes
 
-    private fun downloadMagnet(
-            magnetUri: String
+    private fun downloadFromMagnet(
+            magnetUrl: String
             , timeout: Int
     ): Boolean = synchronized(dhtLock) {
         // We must wait for DHT to start
@@ -225,7 +227,7 @@ class TorrentSession(
         }
 
         return sessionManager.fetchMagnet(
-                URLDecoder.decode(magnetUri, "utf-8")
+                URLDecoder.decode(magnetUrl, "utf-8")
                 , timeout
         ) != null
     }
@@ -235,9 +237,26 @@ class TorrentSession(
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
 
-        // TODO: Handle HTTP torrent and File
-        return downloadMagnet(torrentUri, timeout)
+        if (torrentUrl.startsWith("magnet")) {
+            return downloadFromMagnet(torrentUrl, timeout)
+        }
+
+        if (torrentUrl.startsWith("http") || torrentUrl.startsWith("https")) {
+            return downloadFromTorrent(torrentUrl, timeout)
+        }
+
+        throw InvalidParameterException("Invalid torrent URL (must be: magnet, http, or https URL): $torrentUrl")
     }
+
+
+    private fun downloadFromTorrent(
+            torrentUrl: String
+            , timeout: Int
+    ): Boolean = sessionManager.downloadTorrent(
+            torrentSessionOptions.downloadLocation
+            , URL(torrentUrl)
+            , timeout
+    )
 
     /**
      * Stop the torrent session. This is an expensive operation and should not be
