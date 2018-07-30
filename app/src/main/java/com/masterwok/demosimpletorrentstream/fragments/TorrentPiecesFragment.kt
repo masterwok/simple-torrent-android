@@ -50,6 +50,8 @@ class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<To
     override fun getTitle(): String = "Pieces"
 
     override fun configure(model: TorrentSessionStatus) {
-        torrentPieceAdapter.configure(model)
+        recyclerView.post {
+            torrentPieceAdapter.configure(model)
+        }
     }
 }

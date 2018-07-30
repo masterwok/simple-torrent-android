@@ -10,8 +10,6 @@ import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.simpletorrentstream.models.TorrentSessionBufferState
 import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 
 class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHolder>() {
 
@@ -75,19 +73,16 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
     }
 
     fun configure(torrentSessionStatus: TorrentSessionStatus) {
-        this.bufferState = torrentSessionStatus.torrentSessionBufferState
-
         val downloadedPieceCount = torrentSessionStatus
                 .torrentSessionBufferState
                 .downloadedPieceCount
 
-        isInitialized = true
-
-        if (downloadedPieceCount > lastCompletedPieceCount) {
+        if (downloadedPieceCount != lastCompletedPieceCount) {
             lastCompletedPieceCount = downloadedPieceCount
-            launch(UI) {
-                notifyDataSetChanged()
-            }
+            bufferState = torrentSessionStatus.torrentSessionBufferState
+            isInitialized = true
+
+            notifyDataSetChanged()
         }
     }
 
