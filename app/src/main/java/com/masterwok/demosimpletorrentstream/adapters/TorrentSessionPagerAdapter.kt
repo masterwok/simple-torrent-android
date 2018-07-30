@@ -9,10 +9,18 @@ import android.support.v4.app.FragmentPagerAdapter
  * This fragment pager adapter is responsible for displaying and configuring tabs
  * that implement [@TabFragmentPagerAdapter.TabFragment]
  */
-class TabFragmentPagerAdapter<T, M : Any>(
+class TabFragmentPagerAdapter<T, M : Any> constructor(
         fm: FragmentManager
-        , private vararg val fragments: T
 ) : FragmentPagerAdapter(fm) where T : TabFragmentPagerAdapter.TabFragment<M> {
+
+    private var fragments: ArrayList<T> = ArrayList()
+
+    constructor(
+            fm: FragmentManager
+            , vararg fragments: T
+    ) : this(fm) {
+        this.fragments = ArrayList(fragments.asList())
+    }
 
     /**
      * This interface is used by the [@see TabFragmentManager] to get tab
@@ -37,6 +45,12 @@ class TabFragmentPagerAdapter<T, M : Any>(
     override fun getCount(): Int = fragments.size
 
     override fun getPageTitle(position: Int): CharSequence? = fragments[position].getTitle()
+
+    fun addTab(tab: T) {
+        fragments.add(tab)
+
+        notifyDataSetChanged()
+    }
 
     fun configure(model: M) = fragments.forEach {
         it.configure(model)

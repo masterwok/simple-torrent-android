@@ -17,7 +17,7 @@
         app:tabBackground="@color/colorPrimary"
         app:tabGravity="fill"
         app:tabMaxWidth="1000dp"
-        app:tabMode="fixed"
+        app:tabMode="scrollable"
         app:tabSelectedTextColor="@android:color/white"
         app:tabTextColor="@android:color/white"/>
 
@@ -27,10 +27,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tab_layout"
-        android:layout_above="@+id/button_two"/>
+        android:layout_above="@+id/button_add_torrent"/>
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@id/button_two"
+        android:id="@id/button_add_torrent"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -5,4 +5,10 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark">
 
+    <fragment
+        android:id="@+id/fragment_torrent_pieces"
+        android:name="com.masterwok.demosimpletorrentstream.fragments.TorrentPiecesFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>
