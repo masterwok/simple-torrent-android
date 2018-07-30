@@ -3,4 +3,5 @@
     <string name="button_add_torrent">Add Torrent</string>
     <string name="button_resume">RESUME</string>
     <string name="button_pause">PAUSE</string>
+    <string name="button_finished">FINISHED</string>
 </resources>

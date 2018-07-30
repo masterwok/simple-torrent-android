@@ -20,10 +20,12 @@ class TorrentFragment : Fragment()
         , TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus>
         , TorrentSessionListener {
 
-    private var torrentPiecesFragment: TorrentPiecesFragment? = null
-    private lateinit var buttonPauseResume: AppCompatButton
-
     private lateinit var torrentSession: TorrentSession
+
+    private var torrentPiecesFragment: TorrentPiecesFragment? = null
+    private var buttonPauseResume: AppCompatButton? = null
+
+    private var torrentSessionStatus: TorrentSessionStatus? = null
     private var startDownloadTask: DownloadTask? = null
 
     private var tabIndex: Int = 0
@@ -67,13 +69,13 @@ class TorrentFragment : Fragment()
     }
 
     private fun subscribeToViewComponents() {
-        buttonPauseResume.setOnClickListener {
+        buttonPauseResume?.setOnClickListener {
             if (torrentSession.isPaused) {
                 torrentSession.resume()
-                buttonPauseResume.setText(R.string.button_pause)
+                buttonPauseResume?.setText(R.string.button_pause)
             } else {
                 torrentSession.pause()
-                buttonPauseResume.setText(R.string.button_resume)
+                buttonPauseResume?.setText(R.string.button_resume)
             }
         }
     }
@@ -125,12 +127,40 @@ class TorrentFragment : Fragment()
     override fun onMetadataReceived(torrentSessionStatus: TorrentSessionStatus) =
             configure("onMetadataReceived", torrentSessionStatus)
 
+    private fun setPauseResumeButtonText() {
+        if (torrentSessionStatus?.state == TorrentSessionStatus.State.SEEDING
+                || torrentSessionStatus?.state == TorrentSessionStatus.State.FINISHED) {
+            buttonPauseResume?.setText(R.string.button_finished)
+            buttonPauseResume?.isEnabled = false
+            return
+        }
+
+        if (torrentSession.isPaused) {
+            buttonPauseResume?.setText(R.string.button_resume)
+        } else {
+            buttonPauseResume?.setText(R.string.button_pause)
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        setPauseResumeButtonText()
+
+        if (torrentSessionStatus != null) {
+            torrentPiecesFragment?.configure(torrentSessionStatus!!)
+        }
+    }
 
     private fun configure(
             tag: String
             , torrentSessionStatus: TorrentSessionStatus
     ) {
+        this.torrentSessionStatus = torrentSessionStatus
+
         torrentPiecesFragment?.configure(torrentSessionStatus)
+
+        setPauseResumeButtonText()
 
         Log.d(tag, torrentSessionStatus.torrentSessionBufferState.toString())
     }
