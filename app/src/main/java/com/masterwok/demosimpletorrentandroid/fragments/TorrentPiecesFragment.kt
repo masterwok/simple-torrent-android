@@ -1,4 +1,4 @@
-package com.masterwok.demosimpletorrentstream.fragments
+package com.masterwok.demosimpletorrentandroid.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -7,9 +7,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.masterwok.demosimpletorrentstream.R
-import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
-import com.masterwok.demosimpletorrentstream.adapters.TorrentPieceAdapter
+import com.masterwok.demosimpletorrentandroid.R
+import com.masterwok.demosimpletorrentandroid.adapters.TabFragmentPagerAdapter
+import com.masterwok.demosimpletorrentandroid.adapters.TorrentPieceAdapter
 import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 
 

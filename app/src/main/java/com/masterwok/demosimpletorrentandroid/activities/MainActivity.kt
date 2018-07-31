@@ -1,4 +1,4 @@
-package com.masterwok.demosimpletorrentstream.activities
+package com.masterwok.demosimpletorrentandroid.activities
 
 import android.Manifest
 import android.app.Activity
@@ -11,9 +11,9 @@ import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatButton
-import com.masterwok.demosimpletorrentstream.R
-import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
-import com.masterwok.demosimpletorrentstream.fragments.TorrentFragment
+import com.masterwok.demosimpletorrentandroid.R
+import com.masterwok.demosimpletorrentandroid.adapters.TabFragmentPagerAdapter
+import com.masterwok.demosimpletorrentandroid.fragments.TorrentFragment
 import com.masterwok.simpletorrentandroid.TorrentSessionOptions
 import com.masterwok.simpletorrentandroid.extensions.appCompatRequestPermissions
 import com.masterwok.simpletorrentandroid.extensions.isPermissionGranted

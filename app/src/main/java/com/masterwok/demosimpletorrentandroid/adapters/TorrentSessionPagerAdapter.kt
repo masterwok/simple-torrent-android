@@ -1,4 +1,4 @@
-package com.masterwok.demosimpletorrentstream.adapters
+package com.masterwok.demosimpletorrentandroid.adapters
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
