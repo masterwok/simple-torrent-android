@@ -15,14 +15,17 @@ class TorrentSessionBufferStateTest {
             ", End: ${underTest.endIndex}" +
             ", Head: ${underTest.bufferHeadIndex}" +
             ", Tail: ${underTest.bufferTailIndex}" +
-            ", Last Piece Downloaded Index: ${underTest.lastDownloadedPieceIndex}" +
-            ", IsFinished: ${underTest.isFinished()}"
+            ", Last Piece Downloaded Index: ${underTest.lastDownloadedPieceIndex}"
 
     private fun getExpectedTailIndex(
             bufferHeadIndex: Int
             , endIndex: Int
             , bufferSize: Int
     ): Int = Math.min(bufferHeadIndex + bufferSize, endIndex)
+
+    private fun IntRange.random(): Int {
+        return Random().nextInt((endInclusive + 1) - start) + start
+    }
 
     @Test
     fun new_instance_has_correct_values() {
@@ -31,9 +34,9 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         assertEquals(underTest.bufferHeadIndex, startIndex)
@@ -56,17 +59,22 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
+
         (startIndex..endIndex).forEach {
-            assert(!underTest.isFinished())
+            assertFalse(
+                    "Buffer Head Index: ${underTest.bufferHeadIndex}, End Index: $endIndex",
+                    underTest.allPiecesAreDownloaded()
+            )
+
             underTest.setPieceDownloaded(it)
         }
 
-        assert(underTest.isFinished())
+        assert(underTest.allPiecesAreDownloaded())
     }
 
     @Test
@@ -76,9 +84,9 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         (startIndex..endIndex).forEach {
@@ -95,9 +103,9 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         (startIndex..endIndex).forEach {
@@ -114,9 +122,9 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         (startIndex..endIndex).forEach {
@@ -140,13 +148,13 @@ class TorrentSessionBufferStateTest {
         val expectedPieceCount = getExceptedPieceCount(startIndex, endIndex)
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         var count = 0
-        while (!underTest.isFinished()) {
+        while (!underTest.allPiecesAreDownloaded()) {
             val randomPieceDownload = (startIndex..endIndex).random()
 
             if (!underTest.setPieceDownloaded(randomPieceDownload)) {
@@ -165,9 +173,9 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         (1..29).forEach { underTest.setPieceDownloaded(it) }
@@ -187,9 +195,9 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
 
         val underTest = TorrentSessionBufferState(
-                startIndex
+                bufferSize
+                , startIndex
                 , endIndex
-                , bufferSize
         )
 
         (1..endIndex).forEach { underTest.setPieceDownloaded(it) }
@@ -201,8 +209,4 @@ class TorrentSessionBufferStateTest {
         assertEquals(underTest.bufferHeadIndex, endIndex)
         assertEquals(underTest.bufferTailIndex, Math.min(underTest.bufferHeadIndex + bufferSize, endIndex))
     }
-}
-
-private fun IntRange.random(): Int {
-    return Random().nextInt((endInclusive + 1) - start) + start
 }

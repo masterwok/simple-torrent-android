@@ -39,6 +39,9 @@ class TorrentSessionBufferState constructor(
         }
 
     @Synchronized
+    fun allPiecesAreDownloaded() = !pieceDownloadStates.contains(false)
+
+    @Synchronized
     fun isPieceDownloaded(position: Int) = pieceDownloadStates[position]
 
     @Synchronized
@@ -66,7 +69,7 @@ class TorrentSessionBufferState constructor(
         // Don't let the tail of the buffer go past the last piece.
         bufferTailIndex = Math.min(bufferTailIndex, endIndex)
 
-        if (!pieceDownloadStates.contains(false)) {
+        if (allPiecesAreDownloaded()) {
             bufferHeadIndex = bufferTailIndex
         }
 
