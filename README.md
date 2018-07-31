@@ -1,6 +1,6 @@
 [![Release](https://jitpack.io/v/masterwok/simple-torrent-android.svg)](https://jitpack.io/#masterwok/simple-torrent-android)
 
-# simple-vlc-player
+# simple-torrent-android
 An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
 
 
