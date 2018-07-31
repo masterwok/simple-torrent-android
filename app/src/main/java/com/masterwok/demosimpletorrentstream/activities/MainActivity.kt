@@ -73,9 +73,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun subscribeToViewComponents() {
         buttonAddTorrent.setOnClickListener {
-            // startFilePickerActivity() // Uncomment to test local file Uri
+            // startFilePickerActivity()
             val tabFragment = createTabWithUri(Uri.parse(magnets[torrentSessionPagerAdapter.count]))
             torrentSessionPagerAdapter.addTab(tabFragment)
+
+            if (torrentSessionPagerAdapter.count == magnets.size) {
+                buttonAddTorrent.apply {
+                    text = context.getString(R.string.button_all_torrents_added)
+                    isEnabled = false
+                }
+            }
         }
     }
 
@@ -93,6 +100,7 @@ class MainActivity : AppCompatActivity() {
         buttonAddTorrent = findViewById(R.id.button_add_torrent)
     }
 
+    @Suppress("unused")
     private fun startFilePickerActivity() {
         val intent: Intent
 
