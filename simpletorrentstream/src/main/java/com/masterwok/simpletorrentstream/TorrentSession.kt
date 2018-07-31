@@ -159,7 +159,9 @@ class TorrentSession(
 
         bufferState.setPieceDownloaded(pieceIndex)
 
-        torrentHandle.setBufferPriorities(bufferState)
+        if (torrentSessionOptions.shouldStream) {
+            torrentHandle.setBufferPriorities(bufferState)
+        }
 
         listener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
     }
@@ -171,12 +173,14 @@ class TorrentSession(
         torrentHandle.prioritizeLargestFile(Priority.NORMAL)
 
         bufferState = TorrentSessionBufferState(
-                torrentHandle.getFirstNonIgnoredPieceIndex()
+                bufferState.bufferSize
+                , torrentHandle.getFirstNonIgnoredPieceIndex()
                 , torrentHandle.getLastNonIgnoredPieceIndex()
-                , MaxPrioritizedPieceCount
         )
 
-        torrentHandle.setBufferPriorities(bufferState)
+        if (torrentSessionOptions.shouldStream) {
+            torrentHandle.setBufferPriorities(bufferState)
+        }
 
         listener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
 
@@ -240,9 +244,12 @@ class TorrentSession(
      * the URI is a file or content scheme.
      */
     fun start(context: Context, timeout: Int): Boolean {
-        bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
+
+        bufferState = TorrentSessionBufferState(
+                bufferSize = if (torrentSessionOptions.shouldStream) MaxPrioritizedPieceCount else 0
+        )
 
         val path = torrentUri.toString()
 

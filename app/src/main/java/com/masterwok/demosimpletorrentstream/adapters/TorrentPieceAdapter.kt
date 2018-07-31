@@ -52,16 +52,20 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
     ): Int {
         val isDownloaded = bufferState.isPieceDownloaded(position)
 
+        if (isDownloaded || bufferState.isFinished()) {
+            return ContextCompat.getColor(context, R.color.green)
+        }
+
+        if (bufferState.bufferSize == 0) {
+            return ContextCompat.getColor(context, R.color.purple)
+        }
+
         if (bufferState.bufferHeadIndex == position) {
             if (isDownloaded) {
                 return ContextCompat.getColor(context, R.color.blue)
             }
 
             return ContextCompat.getColor(context, R.color.red)
-        }
-
-        if (bufferState.isFinished() || isDownloaded) {
-            return ContextCompat.getColor(context, R.color.green)
         }
 
         if (position > bufferState.bufferHeadIndex

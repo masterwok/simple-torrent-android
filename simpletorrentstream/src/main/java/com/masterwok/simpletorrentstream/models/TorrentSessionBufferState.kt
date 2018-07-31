@@ -2,10 +2,12 @@ package com.masterwok.simpletorrentstream.models
 
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
 class TorrentSessionBufferState constructor(
-        val startIndex: Int = 0
+        val bufferSize: Int
+        , val startIndex: Int = 0
         , val endIndex: Int = 0
-        , val bufferSize: Int
 ) {
+    constructor() : this(bufferSize = 0)
+
     val pieceCount = (endIndex - startIndex) + 1
 
     private val pieceDownloadStates = BooleanArray(pieceCount)

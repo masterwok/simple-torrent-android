@@ -5,7 +5,7 @@ import com.frostwire.jlibtorrent.SettingsPack
 import java.io.File
 
 data class TorrentSessionOptions(
-        val isStreamingEnabled: Boolean
+        val shouldStream: Boolean
         , val downloadLocation: File
         , val downloadRateLimit: Int
         , val uploadRateLimit: Int
@@ -28,7 +28,7 @@ data class TorrentSessionOptions(
     class Builder constructor(
             private val downloadLocation: File
     ) {
-        private var enableStreaming: Boolean = false
+        private var shouldStream: Boolean = false
         private var downloadRateLimit: Int = 0
         private var uploadRateLimit: Int = 0
         private var connectionsLimit: Int = 200
@@ -37,7 +37,7 @@ data class TorrentSessionOptions(
 
         fun build(): TorrentSessionOptions {
             return TorrentSessionOptions(
-                    enableStreaming
+                    shouldStream
                     , downloadLocation
                     , downloadRateLimit
                     , uploadRateLimit
@@ -47,8 +47,8 @@ data class TorrentSessionOptions(
             )
         }
 
-        fun setEnableStreaming(enableStreaming: Boolean): Builder {
-            this.enableStreaming = enableStreaming
+        fun setStreaming(shouldStream: Boolean): Builder {
+            this.shouldStream = shouldStream
             return this
         }
 
