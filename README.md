@@ -1,12 +1,12 @@
 [![Release](https://jitpack.io/v/masterwok/simple-torrent-android.svg)](https://jitpack.io/#masterwok/simple-torrent-android)
 
 # simple-torrent-android
-An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
+An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent). It supports sequential and simultaneous downloads.
 
 
 ## Usage
 
-A single torrent download session is represented by the ```TorrentSession``` class. An instance of this class can be used to start, stop, pause, and resume a torrent download. When creating a new session, a ```TorrentSessionOptions``` instance along with a torrent ```Uri``` are required constructor parameters. The ```TorrentSessionOptions.Builder``` class can be used to create session options. The ```TorrentSessionListener``` interface can implemented and set on the session to receive ```TorrentSessionStatus``` updates tied to the lifecycle of the torrent. The ```TorrentSessionBufferState``` is a property of the status and represents the current state of the torrent piece buffer.
+A single torrent download session is represented as the ```TorrentSession``` class. An instance of this class can be used to start, stop, pause, and resume a torrent download. When creating a new session, a ```TorrentSessionOptions``` instance along with a torrent ```Uri``` are required constructor parameters. The ```TorrentSessionOptions.Builder``` class can be used to create session options. The ```TorrentSessionListener``` interface can be implemented and set on the session to receive ```TorrentSessionStatus``` updates tied to the lifecycle of the torrent. The ```TorrentSessionBufferState``` is a property of the status and represents the current state of the torrent piece buffer.
 
 
 ```kotlin
