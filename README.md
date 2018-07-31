@@ -1,4 +1,4 @@
-[![Release](https://jitpack.io/v/masterwok/simple-torrent-stream.svg)](https://jitpack.io/#masterwok/simple-torrent-stream)
+[![Release](https://jitpack.io/v/masterwok/simple-torrent-android.svg)](https://jitpack.io/#masterwok/simple-torrent-android)
 
 # simple-vlc-player
 An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
@@ -24,7 +24,7 @@ and add the following in the dependent module:
 
 ```gradle
 dependencies {
-    implementation 'com.github.masterwok:simple-torrent-stream:0.0.1'
+    implementation 'com.github.masterwok:simple-torrent-android:0.0.1'
 }
 ```
 unless you're a fan of large APKs, you'll probably want to add the following to the build.gradle of your app so an APK is generated per ABI:

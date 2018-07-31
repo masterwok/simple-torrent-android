@@ -12,10 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
-import com.masterwok.simpletorrentstream.TorrentSession
-import com.masterwok.simpletorrentstream.TorrentSessionOptions
-import com.masterwok.simpletorrentstream.contracts.TorrentSessionListener
-import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
+import com.masterwok.simpletorrentandroid.TorrentSession
+import com.masterwok.simpletorrentandroid.TorrentSessionOptions
+import com.masterwok.simpletorrentandroid.contracts.TorrentSessionListener
+import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 import java.lang.ref.WeakReference
 
 class TorrentFragment : Fragment()

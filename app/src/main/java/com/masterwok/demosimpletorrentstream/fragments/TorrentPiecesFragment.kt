@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
 import com.masterwok.demosimpletorrentstream.adapters.TorrentPieceAdapter
-import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
+import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 
 
 class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<TorrentSessionStatus> {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Demo Simple Torrent Stream</string>
+    <string name="app_name">Demo Simple Torrent Android</string>
     <string name="button_add_torrent">Add Torrent</string>
     <string name="button_resume">RESUME</string>
     <string name="button_pause">PAUSE</string>

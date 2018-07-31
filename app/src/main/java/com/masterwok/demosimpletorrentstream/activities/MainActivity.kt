@@ -14,10 +14,10 @@ import android.support.v7.widget.AppCompatButton
 import com.masterwok.demosimpletorrentstream.R
 import com.masterwok.demosimpletorrentstream.adapters.TabFragmentPagerAdapter
 import com.masterwok.demosimpletorrentstream.fragments.TorrentFragment
-import com.masterwok.simpletorrentstream.TorrentSessionOptions
-import com.masterwok.simpletorrentstream.extensions.appCompatRequestPermissions
-import com.masterwok.simpletorrentstream.extensions.isPermissionGranted
-import com.masterwok.simpletorrentstream.models.TorrentSessionStatus
+import com.masterwok.simpletorrentandroid.TorrentSessionOptions
+import com.masterwok.simpletorrentandroid.extensions.appCompatRequestPermissions
+import com.masterwok.simpletorrentandroid.extensions.isPermissionGranted
+import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 import com.nononsenseapps.filepicker.FilePickerActivity
 
 
