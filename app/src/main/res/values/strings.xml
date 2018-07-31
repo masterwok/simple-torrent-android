@@ -5,4 +5,5 @@
     <string name="button_pause">PAUSE</string>
     <string name="button_finished">FINISHED</string>
     <string name="button_seeding">SEEDING</string>
+    <string name="button_all_torrents_added">All Torrents Added</string>
 </resources>

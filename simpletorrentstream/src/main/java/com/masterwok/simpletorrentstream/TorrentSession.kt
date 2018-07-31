@@ -44,6 +44,10 @@ class TorrentSession(
     private val sessionManager = SessionManager()
     private val dhtLock = Object()
 
+    init {
+        sessionManager.addListener(alertListener)
+        sessionManager.start(torrentSessionOptions.build())
+    }
 
     private class TorrentSessionAlertListener(
             torrentSession: TorrentSession
@@ -210,11 +214,6 @@ class TorrentSession(
         }
     }
 
-    init {
-        sessionManager.addListener(alertListener)
-        sessionManager.start(torrentSessionOptions.build())
-    }
-
     private fun isDhtReady() = sessionManager
             .stats()
             .dhtNodes() >= MinDhtNodes
@@ -236,7 +235,9 @@ class TorrentSession(
 
     /**
      * Start the torrent session and abort if the session takes longer
-     * than the provided [timeout] to start.
+     * than the provided [timeout] to start. The provided [Context] is
+     * used to resolve an input stream from the content resolver when
+     * the URI is a file or content scheme.
      */
     fun start(context: Context, timeout: Int): Boolean {
         bufferState = TorrentSessionBufferState(bufferSize = MaxPrioritizedPieceCount)
@@ -245,16 +246,16 @@ class TorrentSession(
 
         val path = torrentUri.toString()
 
+        if (path.startsWith("magnet")) {
+            return downloadUsingMagnetUri(path, timeout)
+        }
+
         if (URLUtil.isNetworkUrl(path)) {
             return sessionManager.downloadUsingNetworkUri(
                     torrentSessionOptions.downloadLocation
                     , URL(path)
                     , timeout
             )
-        }
-
-        if (path.startsWith("magnet")) {
-            return downloadUsingMagnetUri(path, timeout)
         }
 
         if (URLUtil.isFileUrl(path) || URLUtil.isContentUrl(path)) {
@@ -265,7 +266,7 @@ class TorrentSession(
             )
         }
 
-        throw InvalidParameterException("Invalid torrent URL (must be: magnet, http, or https URL): $torrentUri")
+        throw InvalidParameterException("Unrecognized torrent URI: $torrentUri")
     }
 
     /**
