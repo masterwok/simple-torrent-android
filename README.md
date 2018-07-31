@@ -1,14 +1,36 @@
 [![Release](https://jitpack.io/v/masterwok/simple-torrent-android.svg)](https://jitpack.io/#masterwok/simple-torrent-android)
 
 # simple-torrent-android
-An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent).
+An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent). It supports sequential and simultaneous downloads.
 
 
 ## Usage
 
+A single torrent download session is represented as the ```TorrentSession``` class. An instance of this class can be used to start, stop, pause, and resume a torrent download. When creating a new session, a ```TorrentSessionOptions``` instance along with a torrent ```Uri``` are required constructor parameters. The ```TorrentSessionOptions.Builder``` class can be used to create session options. The ```TorrentSessionListener``` interface can be implemented and set on the session to receive ```TorrentSessionStatus``` updates tied to the lifecycle of the torrent. The ```TorrentSessionBufferState``` is one of the properties of the status and represents the current state of the torrent piece buffer.
+
+For example, the following code snippet sequentially downloads the largest file of the provided torrent to the downloads directory:
+
 ```kotlin
 
+val torrentUrl = Uri.parse("http://www.frostclick.com/torrents/video/animation/Big_Buck_Bunny_1080p_surround_frostclick.com_frostwire.com.torrent")
+val timeoutSeconds = 60
+
+val torrentSessionOptions = TorrentSessionOptions
+        .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+        .onlyDownloadLargestFile(true)
+        .anonymousMode(true)
+        .build()
+
+val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
+
+torrentSession.listener = object : TorrentSessionListener {
+    // Omitted for brevity
+}
+
+torrentSession.start(context, timeoutSeconds) 
+
 ```
+
 
 ## Configuration
 
