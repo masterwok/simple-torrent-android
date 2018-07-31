@@ -22,7 +22,7 @@ class TorrentSessionBufferStateTest {
             bufferHeadIndex: Int
             , endIndex: Int
             , bufferSize: Int
-    ): Int = Math.min(bufferHeadIndex + bufferSize, endIndex)
+    ): Int = Math.min(bufferHeadIndex + bufferSize - 1, endIndex)
 
     private fun IntRange.random(): Int {
         return Random().nextInt((endInclusive + 1) - start) + start
@@ -185,8 +185,14 @@ class TorrentSessionBufferStateTest {
 
         underTest.setPieceDownloaded(0)
 
+        val expectedTail = getExpectedTailIndex(
+                underTest.bufferHeadIndex
+                , underTest.endIndex
+                , bufferSize
+        )
+
         assertEquals(underTest.bufferHeadIndex, 30)
-        assertEquals(underTest.bufferTailIndex, Math.min(underTest.bufferHeadIndex + bufferSize, endIndex))
+        assertEquals(underTest.bufferTailIndex, Math.min(expectedTail, endIndex))
     }
 
     @Test

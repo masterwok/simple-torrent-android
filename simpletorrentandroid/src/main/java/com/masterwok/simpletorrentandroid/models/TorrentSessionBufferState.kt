@@ -24,7 +24,7 @@ class TorrentSessionBufferState constructor(
             field = value
         }
 
-    var bufferTailIndex = startIndex + bufferSize
+    var bufferTailIndex = startIndex + bufferSize - 1
         @Synchronized
         get() = field
         private set(value) {
