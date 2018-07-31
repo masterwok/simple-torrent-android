@@ -19,7 +19,6 @@ val torrentSessionOptions = TorrentSessionOptions
         .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
         .onlyDownloadLargestFile(true)
         .anonymousMode(true)
-        .stream(true)
         .build()
 
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
