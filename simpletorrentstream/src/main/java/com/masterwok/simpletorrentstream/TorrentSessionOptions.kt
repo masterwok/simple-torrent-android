@@ -5,7 +5,8 @@ import com.frostwire.jlibtorrent.SettingsPack
 import java.io.File
 
 data class TorrentSessionOptions(
-        val shouldStream: Boolean
+        val onlyDownloadLargestFile: Boolean
+        , val shouldStream: Boolean
         , val downloadLocation: File
         , val downloadRateLimit: Int
         , val uploadRateLimit: Int
@@ -28,6 +29,7 @@ data class TorrentSessionOptions(
     class Builder constructor(
             private val downloadLocation: File
     ) {
+        private var onlyDownloadLargestFile: Boolean = false
         private var shouldStream: Boolean = false
         private var downloadRateLimit: Int = 0
         private var uploadRateLimit: Int = 0
@@ -37,7 +39,8 @@ data class TorrentSessionOptions(
 
         fun build(): TorrentSessionOptions {
             return TorrentSessionOptions(
-                    shouldStream
+                    onlyDownloadLargestFile
+                    , shouldStream
                     , downloadLocation
                     , downloadRateLimit
                     , uploadRateLimit
@@ -47,33 +50,38 @@ data class TorrentSessionOptions(
             )
         }
 
-        fun setStreaming(shouldStream: Boolean): Builder {
+        fun onlyDownloadLargestFile(onlyDownloadLargestFile: Boolean): Builder {
+            this.onlyDownloadLargestFile = onlyDownloadLargestFile
+            return this
+        }
+
+        fun stream(shouldStream: Boolean): Builder {
             this.shouldStream = shouldStream
             return this
         }
 
-        fun setDownloadRateLimit(downloadRateLimit: Int): Builder {
+        fun downloadRateLimit(downloadRateLimit: Int): Builder {
             this.downloadRateLimit = downloadRateLimit
             return this
         }
 
-        fun setUploadRateLimit(uploadRateLimit: Int): Builder {
+        fun uploadRateLimit(uploadRateLimit: Int): Builder {
             this.uploadRateLimit = uploadRateLimit
             return this
         }
 
-        fun setConnectionsLimit(connectionsLimit: Int): Builder {
+        fun connectionsLimit(connectionsLimit: Int): Builder {
             this.connectionsLimit = connectionsLimit
             return this
         }
 
-        fun setDhtLimit(dhtLimit: Int): Builder {
+        fun dhtLimit(dhtLimit: Int): Builder {
             this.dhtLimit = dhtLimit
             return this
         }
 
-        fun setAnonymousMode(anonymousMode: Boolean): Builder {
-            this.anonymousMode = anonymousMode
+        fun anonymousMode(useAnonymousMode: Boolean): Builder {
+            this.anonymousMode = useAnonymousMode
             return this
         }
 
