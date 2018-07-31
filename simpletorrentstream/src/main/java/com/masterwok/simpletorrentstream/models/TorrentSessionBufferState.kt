@@ -82,7 +82,8 @@ class TorrentSessionBufferState constructor(
             ", End: $endIndex" +
             ", Head: $bufferHeadIndex" +
             ", Tail: $bufferTailIndex" +
-            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex"
+            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex" +
+            ", All Pieces Downloaded: ${allPiecesAreDownloaded()}"
 }
 
 
