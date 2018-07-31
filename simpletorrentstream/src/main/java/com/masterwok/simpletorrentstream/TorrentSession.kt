@@ -169,8 +169,10 @@ class TorrentSession(
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
         val torrentHandle = addTorrentAlert.handle()
 
-        torrentHandle.ignoreAllFiles()
-        torrentHandle.prioritizeLargestFile(Priority.NORMAL)
+        if (torrentSessionOptions.onlyDownloadLargestFile) {
+            torrentHandle.ignoreAllFiles()
+            torrentHandle.prioritizeLargestFile(Priority.NORMAL)
+        }
 
         bufferState = TorrentSessionBufferState(
                 bufferState.bufferSize

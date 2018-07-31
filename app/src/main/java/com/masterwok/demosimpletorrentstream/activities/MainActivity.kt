@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
             .onlyDownloadLargestFile(false)
             .anonymousMode(true)
-            .stream(false)
+            .stream(true)
             .build()
 
     private val torrentSessionPagerAdapter = TabFragmentPagerAdapter<TorrentFragment, TorrentSessionStatus>(
