@@ -5,13 +5,15 @@ import com.frostwire.jlibtorrent.SettingsPack
 import java.io.File
 
 data class TorrentSessionOptions(
-        val onlyDownloadLargestFile: Boolean
+        val bufferSize: Int
+        , val onlyDownloadLargestFile: Boolean
         , val shouldStream: Boolean
         , val downloadLocation: File
         , val downloadRateLimit: Int
         , val uploadRateLimit: Int
         , val connectionsLimit: Int
-        , val dhtLimit: Int
+        , val dhtNodeMinimum: Int
+        , val dhtNodeLimit: Int
         , val anonymousMode: Boolean
 ) {
     internal fun build(): SessionParams {
@@ -19,7 +21,7 @@ data class TorrentSessionOptions(
                 .downloadRateLimit(downloadRateLimit)
                 .uploadRateLimit(uploadRateLimit)
                 .connectionsLimit(connectionsLimit)
-                .activeDhtLimit(dhtLimit)
+                .activeDhtLimit(dhtNodeLimit)
                 .anonymousMode(anonymousMode)
 
         return SessionParams(settingsPack)
@@ -31,21 +33,25 @@ data class TorrentSessionOptions(
     ) {
         private var onlyDownloadLargestFile: Boolean = false
         private var shouldStream: Boolean = false
+        private var bufferSize: Int = 8
         private var downloadRateLimit: Int = 0
         private var uploadRateLimit: Int = 0
         private var connectionsLimit: Int = 200
-        private var dhtLimit: Int = 88
+        private var dhtNodeMinimum: Int = 10
+        private var dhtNodeLimit: Int = 88
         private var anonymousMode: Boolean = false
 
         fun build(): TorrentSessionOptions {
             return TorrentSessionOptions(
-                    onlyDownloadLargestFile
+                    bufferSize
+                    , onlyDownloadLargestFile
                     , shouldStream
                     , downloadLocation
                     , downloadRateLimit
                     , uploadRateLimit
                     , connectionsLimit
-                    , dhtLimit
+                    , dhtNodeMinimum
+                    , dhtNodeLimit
                     , anonymousMode
             )
         }
@@ -57,6 +63,11 @@ data class TorrentSessionOptions(
 
         fun stream(shouldStream: Boolean): Builder {
             this.shouldStream = shouldStream
+            return this
+        }
+
+        fun streamBufferSize(bufferSize: Int): Builder {
+            this.bufferSize = bufferSize
             return this
         }
 
@@ -75,8 +86,13 @@ data class TorrentSessionOptions(
             return this
         }
 
-        fun dhtLimit(dhtLimit: Int): Builder {
-            this.dhtLimit = dhtLimit
+        fun dhtNodeMinimum(dhtMin: Int): Builder {
+            this.dhtNodeMinimum = dhtMin
+            return this
+        }
+
+        fun dhtNodeLimit(dhtLimit: Int): Builder {
+            this.dhtNodeLimit = dhtLimit
             return this
         }
 

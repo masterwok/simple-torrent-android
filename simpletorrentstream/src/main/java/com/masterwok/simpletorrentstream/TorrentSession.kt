@@ -26,8 +26,6 @@ class TorrentSession(
 ) {
     companion object {
         private const val Tag = "TorrentSession"
-        private const val MaxPrioritizedPieceCount = 8
-        private const val MinDhtNodes = 10
     }
 
     val isPaused get() = sessionManager.isPaused
@@ -222,7 +220,7 @@ class TorrentSession(
 
     private fun isDhtReady() = sessionManager
             .stats()
-            .dhtNodes() >= MinDhtNodes
+            .dhtNodes() >= torrentSessionOptions.dhtNodeMinimum
 
     private fun downloadUsingMagnetUri(
             magnetUrl: String
@@ -250,7 +248,7 @@ class TorrentSession(
         largestFileUri = Uri.EMPTY
 
         bufferState = TorrentSessionBufferState(
-                bufferSize = if (torrentSessionOptions.shouldStream) MaxPrioritizedPieceCount else 0
+                bufferSize = if (torrentSessionOptions.shouldStream) torrentSessionOptions.bufferSize else 0
         )
 
         val path = torrentUri.toString()

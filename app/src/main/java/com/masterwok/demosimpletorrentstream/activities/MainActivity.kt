@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
             .onlyDownloadLargestFile(false)
             .anonymousMode(true)
+            .streamBufferSize(8)
             .stream(true)
             .build()
 
