@@ -6,8 +6,6 @@ class TorrentSessionBufferState constructor(
         , val startIndex: Int = 0
         , val endIndex: Int = 0
 ) {
-    constructor() : this(bufferSize = 0)
-
     val pieceCount = (endIndex - startIndex) + 1
 
     private val pieceDownloadStates = BooleanArray(pieceCount)
@@ -41,9 +39,6 @@ class TorrentSessionBufferState constructor(
         }
 
     @Synchronized
-    fun isFinished() = !pieceDownloadStates.contains(false)
-
-    @Synchronized
     fun isPieceDownloaded(position: Int) = pieceDownloadStates[position]
 
     @Synchronized
@@ -71,7 +66,7 @@ class TorrentSessionBufferState constructor(
         // Don't let the tail of the buffer go past the last piece.
         bufferTailIndex = Math.min(bufferTailIndex, endIndex)
 
-        if (isFinished()) {
+        if (!pieceDownloadStates.contains(false)) {
             bufferHeadIndex = bufferTailIndex
         }
 
@@ -84,8 +79,7 @@ class TorrentSessionBufferState constructor(
             ", End: $endIndex" +
             ", Head: $bufferHeadIndex" +
             ", Tail: $bufferTailIndex" +
-            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex" +
-            ", IsFinished: ${isFinished()}"
+            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex"
 }
 
 
