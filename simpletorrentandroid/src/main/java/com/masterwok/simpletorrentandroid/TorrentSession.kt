@@ -48,6 +48,15 @@ class TorrentSession(
         addListener(alertListener)
     }
 
+    private fun createSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
+            TorrentSessionStatus.createInstance(
+                    torrentUri
+                    , torrentHandle
+                    , torrentSessionBuffer
+                    , saveLocationUri
+                    , largestFileUri
+            )
+
     private class TorrentSessionAlertListener(
             torrentSession: TorrentSession
     ) : AlertListener {
@@ -87,49 +96,20 @@ class TorrentSession(
         override fun types(): IntArray? = null
     }
 
-    private fun onBlockUploaded(blockUploadedAlert: BlockUploadedAlert) {
-        val torrentHandle = blockUploadedAlert.handle()
+    private fun isDhtReady() = stats().dhtNodes() >= torrentSessionOptions.dhtNodeMinimum
 
-        listener?.onBlockUploaded(createTorrentSessionStatus(torrentHandle))
+    private fun onDhtStats() {
+        synchronized(dhtLock) {
+            if (isDhtReady()) {
+                dhtLock.notify()
+            }
+        }
     }
 
-    private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
-            TorrentSessionStatus.createInstance(
-                    torrentUri
-                    , torrentHandle
-                    , torrentSessionBuffer
-                    , saveLocationUri
-                    , largestFileUri
-            )
-
-    private fun onTorrentDeleteFailed(torrentDeleteFailedAlert: TorrentDeleteFailedAlert) {
-        val torrentHandle = torrentDeleteFailedAlert.handle()
-
-        listener?.onTorrentDeleteFailed(createTorrentSessionStatus(torrentHandle))
-    }
-
-    private fun onTorrentPaused(torrentPausedAlert: TorrentPausedAlert) {
-        val torrentHandle = torrentPausedAlert.handle()
-
-        listener?.onTorrentPaused(createTorrentSessionStatus(torrentHandle))
-    }
-
-    private fun onTorrentResumed(torrentResumedAlert: TorrentResumedAlert) {
-        val torrentHandle = torrentResumedAlert.handle()
-
-        listener?.onTorrentResumed(createTorrentSessionStatus(torrentHandle))
-    }
-
-    private fun onTorrentRemoved(torrentRemovedAlert: TorrentRemovedAlert) {
-        val torrentHandle = torrentRemovedAlert.handle()
-
-        listener?.onTorrentRemoved(createTorrentSessionStatus(torrentHandle))
-    }
-
-    private fun onTorrentDeleted(torrentDeletedAlert: TorrentDeletedAlert) {
-        val torrentHandle = torrentDeletedAlert.handle()
-
-        listener?.onTorrentDeleted(createTorrentSessionStatus(torrentHandle))
+    private fun onDhtBootstrap() {
+        synchronized(dhtLock) {
+            dhtLock.notify()
+        }
     }
 
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
@@ -138,32 +118,15 @@ class TorrentSession(
         largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
         saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
 
-        listener?.onMetadataReceived(createTorrentSessionStatus(torrentHandle))
+        listener?.onMetadataReceived(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
 
         download(
                 torrentHandle.torrentFile()
                 , torrentSessionOptions.downloadLocation
         )
-    }
-
-    private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
-        val torrentHandle = pieceFinishedAlert.handle()
-
-        val pieceIndex = pieceFinishedAlert.pieceIndex()
-
-        if (pieceIndex < torrentSessionBuffer.startIndex || pieceIndex > torrentSessionBuffer.endIndex) {
-            // TODO: WHY IS THIS HAPPENING?
-            Log.w(Tag, "Out of range piece downloaded.")
-            return
-        }
-
-        torrentSessionBuffer.setPieceDownloaded(pieceIndex)
-
-        if (torrentSessionOptions.shouldStream) {
-            torrentHandle.setBufferPriorities(torrentSessionBuffer)
-        }
-
-        listener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
     }
 
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
@@ -184,43 +147,119 @@ class TorrentSession(
             torrentHandle.setBufferPriorities(torrentSessionBuffer)
         }
 
-        listener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
+        listener?.onAddTorrent(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
 
         addTorrentAlert
                 .handle()
                 .resume()
     }
 
-    private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) =
-            listener?.onTorrentError(
-                    createTorrentSessionStatus(torrentErrorAlert.handle())
-            )
+    private fun onPieceFinished(pieceFinishedAlert: PieceFinishedAlert) {
+        val torrentHandle = pieceFinishedAlert.handle()
 
-    private fun onTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) =
-            listener?.onTorrentFinished(
-                    createTorrentSessionStatus(torrentFinishedAlert.handle())
-            )
+        val pieceIndex = pieceFinishedAlert.pieceIndex()
 
-    private fun onMetadataFailed(metadataFailedAlert: MetadataFailedAlert) =
-            listener?.onMetadataFailed(
-                    createTorrentSessionStatus(metadataFailedAlert.handle())
-            )
-
-    private fun onDhtStats() {
-        synchronized(dhtLock) {
-            if (isDhtReady()) {
-                dhtLock.notify()
-            }
+        if (pieceIndex < torrentSessionBuffer.startIndex || pieceIndex > torrentSessionBuffer.endIndex) {
+            // TODO: WHY IS THIS HAPPENING?
+            Log.w(Tag, "Out of range piece downloaded.")
+            return
         }
+
+        torrentSessionBuffer.setPieceDownloaded(pieceIndex)
+
+        if (torrentSessionOptions.shouldStream) {
+            torrentHandle.setBufferPriorities(torrentSessionBuffer)
+        }
+
+        listener?.onPieceFinished(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
     }
 
-    private fun onDhtBootstrap() {
-        synchronized(dhtLock) {
-            dhtLock.notify()
-        }
+    private fun onMetadataFailed(metadataFailedAlert: MetadataFailedAlert) {
+        val torrentHandle = metadataFailedAlert.handle()
+
+        listener?.onMetadataFailed(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
     }
 
-    private fun isDhtReady() = stats().dhtNodes() >= torrentSessionOptions.dhtNodeMinimum
+    private fun onTorrentDeleteFailed(torrentDeleteFailedAlert: TorrentDeleteFailedAlert) {
+        val torrentHandle = torrentDeleteFailedAlert.handle()
+
+        listener?.onTorrentDeleteFailed(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onTorrentPaused(torrentPausedAlert: TorrentPausedAlert) {
+        val torrentHandle = torrentPausedAlert.handle()
+
+        listener?.onTorrentPaused(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onTorrentResumed(torrentResumedAlert: TorrentResumedAlert) {
+        val torrentHandle = torrentResumedAlert.handle()
+
+        listener?.onTorrentResumed(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onTorrentRemoved(torrentRemovedAlert: TorrentRemovedAlert) {
+        val torrentHandle = torrentRemovedAlert.handle()
+
+        listener?.onTorrentRemoved(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onTorrentDeleted(torrentDeletedAlert: TorrentDeletedAlert) {
+        val torrentHandle = torrentDeletedAlert.handle()
+
+        listener?.onTorrentDeleted(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onTorrentError(torrentErrorAlert: TorrentErrorAlert) {
+        val torrentHandle = torrentErrorAlert.handle()
+
+        listener?.onTorrentError(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onTorrentFinished(torrentFinishedAlert: TorrentFinishedAlert) {
+        val torrentHandle = torrentFinishedAlert.handle()
+
+        listener?.onTorrentFinished(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
+
+    private fun onBlockUploaded(blockUploadedAlert: BlockUploadedAlert) {
+        val torrentHandle = blockUploadedAlert.handle()
+
+        listener?.onBlockUploaded(
+                torrentHandle
+                , createSessionStatus(torrentHandle)
+        )
+    }
 
     private fun downloadUsingMagnetUri(
             magnetUrl: String
