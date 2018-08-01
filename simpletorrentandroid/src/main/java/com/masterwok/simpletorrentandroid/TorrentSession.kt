@@ -106,7 +106,8 @@ class TorrentSession(
 
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
             TorrentSessionStatus.createInstance(
-                    torrentHandle
+                    torrentUri
+                    , torrentHandle
                     , torrentSessionBuffer
                     , saveLocationUri
                     , largestFileUri
