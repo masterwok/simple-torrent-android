@@ -98,41 +98,65 @@ class TorrentFragment : Fragment()
 
     override fun getTitle(): String = "Torrent: $tabIndex"
 
-    override fun onBlockUploaded(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onBlockUploaded", torrentSessionStatus)
+    override fun onBlockUploaded(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onBlockUploaded", torrentSessionStatus)
 
-    override fun onAddTorrent(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onAddTorrent", torrentSessionStatus)
+    override fun onAddTorrent(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onAddTorrent", torrentSessionStatus)
 
-    override fun onTorrentRemoved(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentRemoved", torrentSessionStatus)
+    override fun onTorrentRemoved(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentRemoved", torrentSessionStatus)
 
-    override fun onTorrentDeleted(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentRemoved", torrentSessionStatus)
+    override fun onTorrentDeleted(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentRemoved", torrentSessionStatus)
 
-    override fun onTorrentDeleteFailed(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentDeleteFailed", torrentSessionStatus)
+    override fun onTorrentDeleteFailed(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentDeleteFailed", torrentSessionStatus)
 
-    override fun onTorrentError(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentError", torrentSessionStatus)
+    override fun onTorrentError(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentError", torrentSessionStatus)
 
-    override fun onTorrentResumed(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentResumed", torrentSessionStatus)
+    override fun onTorrentResumed(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentResumed", torrentSessionStatus)
 
-    override fun onTorrentPaused(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentPaused", torrentSessionStatus)
+    override fun onTorrentPaused(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentPaused", torrentSessionStatus)
 
-    override fun onTorrentFinished(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onTorrentFinished", torrentSessionStatus)
+    override fun onTorrentFinished(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onTorrentFinished", torrentSessionStatus)
 
-    override fun onPieceFinished(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onPieceFinished", torrentSessionStatus)
+    override fun onPieceFinished(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onPieceFinished", torrentSessionStatus)
 
-    override fun onMetadataFailed(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onMetadataFailed", torrentSessionStatus)
+    override fun onMetadataFailed(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onMetadataFailed", torrentSessionStatus)
 
-    override fun onMetadataReceived(torrentHandle: TorrentHandle, torrentSessionStatus: TorrentSessionStatus) =
-            configure("onMetadataReceived", torrentSessionStatus)
+    override fun onMetadataReceived(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = configure("onMetadataReceived", torrentSessionStatus)
 
     private fun setPauseResumeButtonText() {
         if (torrentSessionStatus?.state == TorrentSessionStatus.State.SEEDING) {

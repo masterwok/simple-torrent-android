@@ -25,7 +25,14 @@ val torrentSessionOptions = TorrentSessionOptions
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
 
 torrentSession.listener = object : TorrentSessionListener {
+
     // Omitted for brevity
+    
+    override fun onPieceFinished(
+            torrentHandle: TorrentHandle
+            , torrentSessionStatus: TorrentSessionStatus
+    ) = doSomething(...)
+    
 }
 
 torrentSession.start(context, timeoutSeconds) 
