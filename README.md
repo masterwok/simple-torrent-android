@@ -1,7 +1,7 @@
 [![Release](https://jitpack.io/v/masterwok/simple-torrent-android.svg)](https://jitpack.io/#masterwok/simple-torrent-android)
 
 # simple-torrent-android
-An Android torrent streaming library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent). It supports sequential and simultaneous downloads.
+An Android torrent client library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent). It supports sequential and simultaneous downloads.
 
 
 ## Usage
@@ -19,6 +19,7 @@ val torrentSessionOptions = TorrentSessionOptions
         .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
         .onlyDownloadLargestFile(true)
         .anonymousMode(true)
+        .stream(true)
         .build()
 
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
@@ -31,6 +32,7 @@ torrentSession.start(context, timeoutSeconds)
 
 ```
 
+For a more detailed example, please see the sample application alongside this library (screenshot below).
 
 ## Configuration
 
