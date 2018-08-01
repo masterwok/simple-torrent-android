@@ -19,6 +19,7 @@ val torrentSessionOptions = TorrentSessionOptions
         .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
         .onlyDownloadLargestFile(true)
         .anonymousMode(true)
+        .stream(true)
         .build()
 
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
@@ -30,6 +31,9 @@ torrentSession.listener = object : TorrentSessionListener {
 torrentSession.start(context, timeoutSeconds) 
 
 ```
+
+
+For a more detailed example, please see the sample application alongside the library.
 
 
 ## Configuration
