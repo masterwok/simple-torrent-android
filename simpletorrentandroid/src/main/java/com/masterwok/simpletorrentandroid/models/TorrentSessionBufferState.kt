@@ -1,15 +1,24 @@
 package com.masterwok.simpletorrentandroid.models
 
+
+/**
+ * This buffer contains the current download state of torrent pieces and is
+ * used internally to keep track of which pieces to prioritize when streaming.
+ */
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
-class TorrentSessionBufferState constructor(
+class TorrentSessionBufferState internal constructor(
         val bufferSize: Int
         , val startIndex: Int = 0
         , val endIndex: Int = 0
 ) {
+    /**
+     * The total number of pieces.
+     */
     val pieceCount = (endIndex - startIndex) + 1
 
-    private val pieceDownloadStates = BooleanArray(pieceCount)
-
+    /**
+     * The number of pieces downloaded.
+     */
     var downloadedPieceCount = 0
         @Synchronized
         get() = field
@@ -17,6 +26,9 @@ class TorrentSessionBufferState constructor(
             field = value
         }
 
+    /**
+     * The index of the head of the buffer.
+     */
     var bufferHeadIndex = startIndex
         @Synchronized
         get() = field
@@ -24,13 +36,20 @@ class TorrentSessionBufferState constructor(
             field = value
         }
 
-    var bufferTailIndex = startIndex + bufferSize - 1
+    /**
+     * The index of the tail of the buffer.
+     */
+    var bufferTailIndex = if (bufferSize == 0) endIndex else startIndex + bufferSize - 1
         @Synchronized
         get() = field
         private set(value) {
             field = value
         }
 
+    /**
+     * The index of the last downloaded piece. If no pieces were downloaded, then
+     * this value will be -1.
+     */
     var lastDownloadedPieceIndex = -1
         @Synchronized
         get() = field
@@ -38,14 +57,10 @@ class TorrentSessionBufferState constructor(
             field = value
         }
 
-    @Synchronized
-    fun allPiecesAreDownloaded() = !pieceDownloadStates.contains(false)
+    private val pieceDownloadStates = BooleanArray(pieceCount)
 
     @Synchronized
-    fun isPieceDownloaded(position: Int) = pieceDownloadStates[position]
-
-    @Synchronized
-    fun setPieceDownloaded(index: Int): Boolean {
+    internal fun setPieceDownloaded(index: Int): Boolean {
         // Ignore if less than head or already downloaded.
         if (index < bufferHeadIndex || isPieceDownloaded(index)) {
             return true
@@ -75,6 +90,18 @@ class TorrentSessionBufferState constructor(
 
         return false
     }
+
+    /**
+     * Determine if all pieces are downloaded.
+     */
+    @Synchronized
+    fun allPiecesAreDownloaded() = !pieceDownloadStates.contains(false)
+
+    /**
+     * Check if piece at [index] is downloaded.
+     */
+    @Synchronized
+    fun isPieceDownloaded(index: Int) = pieceDownloadStates[index]
 
     @Synchronized
     override fun toString(): String = "Total Pieces: $pieceCount" +
