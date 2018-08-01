@@ -57,27 +57,25 @@ class TorrentSessionStatus private constructor(
         }
     }
 
-    override fun toString(): String {
-        return "State: $state" +
-                ", Seeder Count: $seederCount" +
-                ", Download Rate: $downloadRate" +
-                ", Upload Rate: $uploadRate" +
-                ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
-                ", $torrentSessionBuffer" +
-                ", Torrent Uri: $torrentUri" +
-                ", Save Location: $saveLocationUri" +
-                ", Video File: $videoFileUri"
-    }
+    override fun toString(): String = "State: $state" +
+            ", Seeder Count: $seederCount" +
+            ", Download Rate: $downloadRate" +
+            ", Upload Rate: $uploadRate" +
+            ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
+            ", $torrentSessionBuffer" +
+            ", Torrent Uri: $torrentUri" +
+            ", Save Location: $saveLocationUri" +
+            ", Video File: $videoFileUri"
 
-    enum class State {
-        CHECKING_FILES,
-        DOWNLOADING_METADATA,
-        DOWNLOADING,
-        FINISHED,
-        SEEDING,
-        ALLOCATING,
-        CHECKING_RESUME_DATA,
-        UNKNOWN
+    enum class State(val value: Int) {
+        UNKNOWN(-1),
+        CHECKING_FILES(0),
+        DOWNLOADING_METADATA(1),
+        DOWNLOADING(2),
+        FINISHED(3),
+        SEEDING(4),
+        ALLOCATING(5),
+        CHECKING_RESUME_DATA(6)
     }
 }
 
