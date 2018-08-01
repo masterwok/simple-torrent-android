@@ -75,7 +75,11 @@ class TorrentSessionStatus private constructor(
         FINISHED(3),
         SEEDING(4),
         ALLOCATING(5),
-        CHECKING_RESUME_DATA(6)
+        CHECKING_RESUME_DATA(6);
+
+        companion object {
+            fun valueOf(value: Int): State = State.values().first { it.value == value }
+        }
     }
 }
 
