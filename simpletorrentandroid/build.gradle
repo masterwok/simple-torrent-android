@@ -34,17 +34,19 @@ dependencies {
 
     implementation "com.android.support:appcompat-v7:$version_support"
 
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     // jLibTorrent
-    implementation "com.frostwire:jlibtorrent:$version_jlibtorrent"
-    implementation "com.frostwire:jlibtorrent-android-arm:$version_jlibtorrent"
-    implementation "com.frostwire:jlibtorrent-android-arm64:$version_jlibtorrent"
-    implementation "com.frostwire:jlibtorrent-android-x86:$version_jlibtorrent"
-    implementation "com.frostwire:jlibtorrent-android-x86_64:$version_jlibtorrent"
+    api "com.frostwire:jlibtorrent:$version_jlibtorrent"
+    api "com.frostwire:jlibtorrent-android-arm:$version_jlibtorrent"
+    api "com.frostwire:jlibtorrent-android-arm64:$version_jlibtorrent"
+    api "com.frostwire:jlibtorrent-android-x86:$version_jlibtorrent"
+    api "com.frostwire:jlibtorrent-android-x86_64:$version_jlibtorrent"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
     mavenCentral()
