@@ -11,7 +11,7 @@ A single torrent download session is represented as the ```TorrentSession``` cla
 For example, the following code snippet sequentially downloads the largest file of the provided torrent to the downloads directory:
 
 ```kotlin
-
+// http, https, magnet, file, and content Uri types are all supported.
 val torrentUrl = Uri.parse("http://www.frostclick.com/torrents/video/animation/Big_Buck_Bunny_1080p_surround_frostclick.com_frostwire.com.torrent")
 val timeoutSeconds = 60
 
@@ -25,14 +25,7 @@ val torrentSessionOptions = TorrentSessionOptions
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
 
 torrentSession.listener = object : TorrentSessionListener {
-
     // Omitted for brevity
-    
-    override fun onPieceFinished(
-            torrentHandle: TorrentHandle
-            , torrentSessionStatus: TorrentSessionStatus
-    ) = doSomething(...)
-    
 }
 
 torrentSession.start(context, timeoutSeconds) 
