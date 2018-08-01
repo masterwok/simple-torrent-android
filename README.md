@@ -32,7 +32,7 @@ torrentSession.start(context, timeoutSeconds)
 
 ```
 
-For a more detailed example, please see the sample application alongside this library.
+For a more detailed example, please see the sample application alongside this library (screenshot below).
 
 ## Configuration
 
