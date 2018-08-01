@@ -3,7 +3,7 @@ package com.masterwok.simpletorrentandroid.extensions
 import android.net.Uri
 import com.frostwire.jlibtorrent.Priority
 import com.frostwire.jlibtorrent.TorrentHandle
-import com.masterwok.simpletorrentandroid.models.TorrentSessionBufferState
+import com.masterwok.simpletorrentandroid.models.TorrentSessionBuffer
 import java.io.File
 
 
@@ -108,10 +108,10 @@ internal fun TorrentHandle.getFirstMissingPieceIndex(
  * non-ignored piece index + [bufferSize].
  */
 internal fun TorrentHandle.setBufferPriorities(
-        bufferState: TorrentSessionBufferState
+        torrentSessionBuffer: TorrentSessionBuffer
 ) {
 //    clearPieceDeadlines()
-    setPiecePriorities(bufferState.bufferHeadIndex, bufferState.bufferTailIndex)
+    setPiecePriorities(torrentSessionBuffer.bufferHeadIndex, torrentSessionBuffer.bufferTailIndex)
 }
 
 internal fun TorrentHandle.setPiecePriorities(

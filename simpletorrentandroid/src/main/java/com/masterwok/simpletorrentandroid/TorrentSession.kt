@@ -11,7 +11,7 @@ import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.alerts.*
 import com.masterwok.simpletorrentandroid.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentandroid.extensions.*
-import com.masterwok.simpletorrentandroid.models.TorrentSessionBufferState
+import com.masterwok.simpletorrentandroid.models.TorrentSessionBuffer
 import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 import java.lang.ref.WeakReference
 import java.net.URL
@@ -19,7 +19,11 @@ import java.net.URLDecoder
 import java.security.InvalidParameterException
 
 
-@Suppress("MemberVisibilityCanBePrivate")
+/**
+ * This class is used to control a torrent download session for the provided [torrentUri].
+ * It is configured using the provided [torrentSessionOptions].
+ */
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class TorrentSession(
         val torrentUri: Uri
         , private val torrentSessionOptions: TorrentSessionOptions
@@ -28,13 +32,22 @@ class TorrentSession(
         private const val Tag = "TorrentSession"
     }
 
+    /**
+     * Whether or not the session is paused.
+     */
     val isPaused get() = sessionManager.isPaused
 
+    /**
+     * Whether or not the session is running (started).
+     */
     val isRunning get() = sessionManager.isRunning
 
+    /**
+     * The provided [listener] will receive status updates during the torrent download.
+     */
     var listener: TorrentSessionListener? = null
 
-    private lateinit var bufferState: TorrentSessionBufferState
+    private lateinit var torrentSessionBuffer: TorrentSessionBuffer
     private lateinit var saveLocationUri: Uri
     private lateinit var largestFileUri: Uri
 
@@ -44,7 +57,6 @@ class TorrentSession(
 
     init {
         sessionManager.addListener(alertListener)
-        sessionManager.start(torrentSessionOptions.build())
     }
 
     private class TorrentSessionAlertListener(
@@ -95,7 +107,7 @@ class TorrentSession(
     private fun createTorrentSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
             TorrentSessionStatus.createInstance(
                     torrentHandle
-                    , bufferState
+                    , torrentSessionBuffer
                     , saveLocationUri
                     , largestFileUri
             )
@@ -149,16 +161,16 @@ class TorrentSession(
 
         val pieceIndex = pieceFinishedAlert.pieceIndex()
 
-        if (pieceIndex < bufferState.startIndex || pieceIndex > bufferState.endIndex) {
+        if (pieceIndex < torrentSessionBuffer.startIndex || pieceIndex > torrentSessionBuffer.endIndex) {
             // TODO: WHY IS THIS HAPPENING?
             Log.w(Tag, "Out of range piece downloaded.")
             return
         }
 
-        bufferState.setPieceDownloaded(pieceIndex)
+        torrentSessionBuffer.setPieceDownloaded(pieceIndex)
 
         if (torrentSessionOptions.shouldStream) {
-            torrentHandle.setBufferPriorities(bufferState)
+            torrentHandle.setBufferPriorities(torrentSessionBuffer)
         }
 
         listener?.onPieceFinished(createTorrentSessionStatus(torrentHandle))
@@ -172,14 +184,14 @@ class TorrentSession(
             torrentHandle.prioritizeLargestFile(Priority.NORMAL)
         }
 
-        bufferState = TorrentSessionBufferState(
-                bufferState.bufferSize
+        torrentSessionBuffer = TorrentSessionBuffer(
+                torrentSessionBuffer.bufferSize
                 , torrentHandle.getFirstNonIgnoredPieceIndex()
                 , torrentHandle.getLastNonIgnoredPieceIndex()
         )
 
         if (torrentSessionOptions.shouldStream) {
-            torrentHandle.setBufferPriorities(bufferState)
+            torrentHandle.setBufferPriorities(torrentSessionBuffer)
         }
 
         listener?.onAddTorrent(createTorrentSessionStatus(torrentHandle))
@@ -247,9 +259,13 @@ class TorrentSession(
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
 
-        bufferState = TorrentSessionBufferState(
+        torrentSessionBuffer = TorrentSessionBuffer(
                 bufferSize = if (torrentSessionOptions.shouldStream) torrentSessionOptions.bufferSize else 0
         )
+
+        if (!sessionManager.isRunning) {
+            sessionManager.start(torrentSessionOptions.build())
+        }
 
         val path = torrentUri.toString()
 

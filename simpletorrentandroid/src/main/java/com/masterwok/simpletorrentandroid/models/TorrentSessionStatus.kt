@@ -5,6 +5,11 @@ import com.frostwire.jlibtorrent.TorrentHandle
 import com.frostwire.jlibtorrent.TorrentStatus
 import com.masterwok.simpletorrentandroid.extensions.*
 
+
+/**
+ * This class represents the current state of a torrent session. To receive
+ * state updates, set the listener of the [@see TorrentSession].
+ */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class TorrentSessionStatus private constructor(
         val state: State
@@ -16,12 +21,12 @@ class TorrentSessionStatus private constructor(
         , val bytesWanted: Long
         , val saveLocationUri: Uri
         , val videoFileUri: Uri
-        , val torrentSessionBufferState: TorrentSessionBufferState
+        , val torrentSessionBuffer: TorrentSessionBuffer
 ) {
     internal companion object {
         fun createInstance(
                 torrentHandle: TorrentHandle
-                , torrentSessionBufferState: TorrentSessionBufferState
+                , torrentSessionBuffer: TorrentSessionBuffer
                 , saveLocationUri: Uri
                 , largestFileUri: Uri
         ): TorrentSessionStatus = TorrentSessionStatus(
@@ -34,7 +39,7 @@ class TorrentSessionStatus private constructor(
                 , torrentHandle.getTotalWanted()
                 , saveLocationUri
                 , largestFileUri
-                , torrentSessionBufferState
+                , torrentSessionBuffer
         )
 
         private fun TorrentStatus.State.toTorrentStreamStatusSate(): State = when (this) {
@@ -55,7 +60,7 @@ class TorrentSessionStatus private constructor(
                 ", Download Rate: $downloadRate" +
                 ", Upload Rate: $uploadRate" +
                 ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
-                ", $torrentSessionBufferState" +
+                ", $torrentSessionBuffer" +
                 ", Save Location: $saveLocationUri" +
                 ", Video File: $videoFileUri"
     }

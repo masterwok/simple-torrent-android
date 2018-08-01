@@ -6,7 +6,7 @@ package com.masterwok.simpletorrentandroid.models
  * used internally to keep track of which pieces to prioritize when streaming.
  */
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
-class TorrentSessionBufferState internal constructor(
+class TorrentSessionBuffer internal constructor(
         val bufferSize: Int
         , val startIndex: Int = 0
         , val endIndex: Int = 0
@@ -57,6 +57,27 @@ class TorrentSessionBufferState internal constructor(
             field = value
         }
 
+    /**
+     * Determine if all pieces are downloaded.
+     */
+    @Synchronized
+    fun allPiecesAreDownloaded() = !pieceDownloadStates.contains(false)
+
+    /**
+     * Check if piece at [index] is downloaded.
+     */
+    @Synchronized
+    fun isPieceDownloaded(index: Int) = pieceDownloadStates[index]
+
+    @Synchronized
+    override fun toString(): String = "Total Pieces: $pieceCount" +
+            ", Start: $startIndex" +
+            ", End: $endIndex" +
+            ", Head: $bufferHeadIndex" +
+            ", Tail: $bufferTailIndex" +
+            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex" +
+            ", All Pieces Downloaded: ${allPiecesAreDownloaded()}"
+
     private val pieceDownloadStates = BooleanArray(pieceCount)
 
     @Synchronized
@@ -90,27 +111,6 @@ class TorrentSessionBufferState internal constructor(
 
         return false
     }
-
-    /**
-     * Determine if all pieces are downloaded.
-     */
-    @Synchronized
-    fun allPiecesAreDownloaded() = !pieceDownloadStates.contains(false)
-
-    /**
-     * Check if piece at [index] is downloaded.
-     */
-    @Synchronized
-    fun isPieceDownloaded(index: Int) = pieceDownloadStates[index]
-
-    @Synchronized
-    override fun toString(): String = "Total Pieces: $pieceCount" +
-            ", Start: $startIndex" +
-            ", End: $endIndex" +
-            ", Head: $bufferHeadIndex" +
-            ", Tail: $bufferTailIndex" +
-            ", Last Piece Downloaded Index: $lastDownloadedPieceIndex" +
-            ", All Pieces Downloaded: ${allPiecesAreDownloaded()}"
 }
 
 

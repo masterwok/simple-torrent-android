@@ -1,16 +1,16 @@
 package com.masterwok.simpletorrentandroid
 
-import com.masterwok.simpletorrentandroid.models.TorrentSessionBufferState
+import com.masterwok.simpletorrentandroid.models.TorrentSessionBuffer
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import org.junit.Test
 import java.util.*
 
-class TorrentSessionBufferStateTest {
+class TorrentSessionBufferTest {
 
     private fun getExceptedPieceCount(startIndex: Int, endIndex: Int): Int = (endIndex - startIndex) + 1
 
-    private fun getExpectedToString(underTest: TorrentSessionBufferState): String = "Total Pieces: ${underTest.pieceCount}" +
+    private fun getExpectedToString(underTest: TorrentSessionBuffer): String = "Total Pieces: ${underTest.pieceCount}" +
             ", Start: ${underTest.startIndex}" +
             ", End: ${underTest.endIndex}" +
             ", Head: ${underTest.bufferHeadIndex}" +
@@ -34,7 +34,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 99
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -59,7 +59,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 99
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -84,7 +84,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 99
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -103,7 +103,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 99
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -122,7 +122,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 99
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -148,7 +148,7 @@ class TorrentSessionBufferStateTest {
         val bufferSize = 8
         val expectedPieceCount = getExceptedPieceCount(startIndex, endIndex)
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -173,7 +173,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 100
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex
@@ -201,7 +201,7 @@ class TorrentSessionBufferStateTest {
         val endIndex = 100
         val bufferSize = 8
 
-        val underTest = TorrentSessionBufferState(
+        val underTest = TorrentSessionBuffer(
                 bufferSize
                 , startIndex
                 , endIndex

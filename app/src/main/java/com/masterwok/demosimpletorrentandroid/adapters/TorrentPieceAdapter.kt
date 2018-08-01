@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentandroid.R
-import com.masterwok.simpletorrentandroid.models.TorrentSessionBufferState
+import com.masterwok.simpletorrentandroid.models.TorrentSessionBuffer
 import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 
 class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHolder>() {
@@ -23,7 +23,7 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
 
     }
 
-    private lateinit var bufferState: TorrentSessionBufferState
+    private lateinit var torrentSessionBuffer: TorrentSessionBuffer
 
     private var isInitialized = false
 
@@ -38,7 +38,7 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
                             false
                     ))
 
-    override fun getItemCount(): Int = if (isInitialized) bufferState.pieceCount else 0
+    override fun getItemCount(): Int = if (isInitialized) torrentSessionBuffer.pieceCount else 0
 
     override fun onBindViewHolder(holder: PieceViewHolder, position: Int) {
         val context = holder.itemView.context
@@ -50,17 +50,17 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             context: Context
             , position: Int
     ): Int {
-        val isDownloaded = bufferState.isPieceDownloaded(position)
+        val isDownloaded = torrentSessionBuffer.isPieceDownloaded(position)
 
         if (isDownloaded) {
             return ContextCompat.getColor(context, R.color.green)
         }
 
-        if (bufferState.bufferSize == 0) {
+        if (torrentSessionBuffer.bufferSize == 0) {
             return ContextCompat.getColor(context, R.color.purple)
         }
 
-        if (bufferState.bufferHeadIndex == position) {
+        if (torrentSessionBuffer.bufferHeadIndex == position) {
             if (isDownloaded) {
                 return ContextCompat.getColor(context, R.color.blue)
             }
@@ -68,8 +68,8 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             return ContextCompat.getColor(context, R.color.red)
         }
 
-        if (position > bufferState.bufferHeadIndex
-                && position <= bufferState.bufferTailIndex) {
+        if (position > torrentSessionBuffer.bufferHeadIndex
+                && position <= torrentSessionBuffer.bufferTailIndex) {
             return ContextCompat.getColor(context, R.color.yellow)
         }
 
@@ -78,12 +78,12 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
 
     fun configure(torrentSessionStatus: TorrentSessionStatus) {
         val downloadedPieceCount = torrentSessionStatus
-                .torrentSessionBufferState
+                .torrentSessionBuffer
                 .downloadedPieceCount
 
         if (downloadedPieceCount != lastCompletedPieceCount) {
             lastCompletedPieceCount = downloadedPieceCount
-            bufferState = torrentSessionStatus.torrentSessionBufferState
+            torrentSessionBuffer = torrentSessionStatus.torrentSessionBuffer
             isInitialized = true
 
             notifyDataSetChanged()
