@@ -21,6 +21,13 @@ import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 import com.nononsenseapps.filepicker.FilePickerActivity
 
 
+/**
+ * This activity is responsible for creating and presenting multiple torrent fragments.
+ * The [@see TorrentSession] and its associated [@see TorrentSessionListener] exist within
+ * [@see TorrentFragment]. In the real world, you would want to have the
+ * [@see TorrentSession] live in a foreground service so its not interrupted when the device
+ * goes to sleep.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tabLayout: TabLayout
@@ -72,7 +79,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun subscribeToViewComponents() {
         buttonAddTorrent.setOnClickListener {
-            // startFilePickerActivity()
+            // startFilePickerActivity() // Be sure to comment the two lines below if you uncomment this.
             val tabFragment = createTabWithUri(Uri.parse(torrentUrls[torrentSessionPagerAdapter.count]))
             torrentSessionPagerAdapter.addTab(tabFragment)
 
@@ -99,6 +106,10 @@ class MainActivity : AppCompatActivity() {
         buttonAddTorrent = findViewById(R.id.button_add_torrent)
     }
 
+    /**
+     * This method can be invoked in the buttonAddTorrent click listener to select
+     * a torrent file.
+     */
     @Suppress("unused")
     private fun startFilePickerActivity() {
         val intent: Intent
