@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private val torrentSessionOptions = TorrentSessionOptions
             .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
             .onlyDownloadLargestFile(true)
-            .anonymousMode(true)
+            .logging(true)
             .stream(true)
             .build()
 

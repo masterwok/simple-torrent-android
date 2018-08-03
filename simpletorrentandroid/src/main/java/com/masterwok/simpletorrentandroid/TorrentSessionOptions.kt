@@ -22,6 +22,7 @@ class TorrentSessionOptions private constructor(
         , val dhtNodeMinimum: Int
         , val dhtNodeLimit: Int
         , val anonymousMode: Boolean
+        , val enableLogging: Boolean
 ) {
     internal fun build(): SessionParams {
         val settingsPack = SettingsPack()
@@ -47,6 +48,7 @@ class TorrentSessionOptions private constructor(
         private var dhtNodeMinimum: Int = 10
         private var dhtNodeLimit: Int = 88
         private var anonymousMode: Boolean = false
+        private var enableLogging: Boolean = false
 
         /**
          * Build the [TorrentSessionOptions] instance.
@@ -63,7 +65,16 @@ class TorrentSessionOptions private constructor(
                     , dhtNodeMinimum
                     , dhtNodeLimit
                     , anonymousMode
+                    , enableLogging
             )
+        }
+
+        /**
+         * Enable verbose logging of the torrent session.
+         */
+        fun logging(isEnabled: Boolean): Builder {
+            this.enableLogging = isEnabled
+            return this
         }
 
         /**
