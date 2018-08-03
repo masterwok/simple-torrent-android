@@ -25,14 +25,20 @@ val torrentSessionOptions = TorrentSessionOptions
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
 
 torrentSession.listener = object : TorrentSessionListener {
+    
     // Omitted for brevity
+    
+    override fun onPieceFinished(
+        torrentHandle: TorrentHandle
+        , torrentSessionStatus: TorrentSessionStatus
+    ) { ... }
 }
 
 torrentSession.start(context, timeoutSeconds) 
 
 ```
 
-For a more detailed example, please see the sample application alongside this library (screenshot below).
+For a more detailed example, please see the demo application alongside this library (screenshot below). Please note, that the demo application does not properly show how to keep sessions alive after the activity is killed. This was a quick and dirty way of showing/testing downloads. A more real-world solution, would be to have the torrent sessions exist within a service that enters the foreground while downloading. By doing this, the sessions will retain network connectivity and will not be murdered by Android the destroyer.
 
 ## Configuration
 
