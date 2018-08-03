@@ -27,7 +27,8 @@ import java.security.InvalidParameterException
 class TorrentSession(
         val torrentUri: Uri
         , private val torrentSessionOptions: TorrentSessionOptions
-) : SessionManager() {
+        , enableLogging: Boolean = false
+) : SessionManager(enableLogging) {
     companion object {
         private const val Tag = "TorrentSession"
     }
