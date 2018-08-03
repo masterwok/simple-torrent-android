@@ -1,7 +1,7 @@
 package com.masterwok.simpletorrentandroid
 
-import com.frostwire.jlibtorrent.SessionParams
 import com.frostwire.jlibtorrent.SettingsPack
+import com.frostwire.jlibtorrent.swig.settings_pack
 import java.io.File
 
 
@@ -10,147 +10,19 @@ import java.io.File
  *
  * For more information, [@see https://www.libtorrent.org/reference-Settings.html]
  */
-@Suppress("MemberVisibilityCanBePrivate")
-class TorrentSessionOptions private constructor(
-        val bufferSize: Int
-        , val onlyDownloadLargestFile: Boolean
-        , val shouldStream: Boolean
-        , val downloadLocation: File
-        , val downloadRateLimit: Int
-        , val uploadRateLimit: Int
-        , val connectionsLimit: Int
-        , val dhtNodeMinimum: Int
-        , val dhtNodeLimit: Int
-        , val anonymousMode: Boolean
-        , val enableLogging: Boolean
-) {
-    internal fun build(): SessionParams {
-        val settingsPack = SettingsPack()
-                .downloadRateLimit(downloadRateLimit)
-                .uploadRateLimit(uploadRateLimit)
-                .connectionsLimit(connectionsLimit)
-                .activeDhtLimit(dhtNodeLimit)
-                .anonymousMode(anonymousMode)
-
-        return SessionParams(settingsPack)
-    }
-
-    @Suppress("unused")
-    class Builder constructor(
-            private val downloadLocation: File
-    ) {
-        private var onlyDownloadLargestFile: Boolean = false
-        private var shouldStream: Boolean = false
-        private var bufferSize: Int = 8
-        private var downloadRateLimit: Int = 0
-        private var uploadRateLimit: Int = 0
-        private var connectionsLimit: Int = 200
-        private var dhtNodeMinimum: Int = 10
-        private var dhtNodeLimit: Int = 88
-        private var anonymousMode: Boolean = false
-        private var enableLogging: Boolean = false
+@Suppress("MemberVisibilityCanBePrivate", "CanBeParameter")
+data class TorrentSessionOptions constructor(
 
         /**
-         * Build the [TorrentSessionOptions] instance.
+         * The root directory to download the torrent into.
          */
-        fun build(): TorrentSessionOptions {
-            return TorrentSessionOptions(
-                    bufferSize
-                    , onlyDownloadLargestFile
-                    , shouldStream
-                    , downloadLocation
-                    , downloadRateLimit
-                    , uploadRateLimit
-                    , connectionsLimit
-                    , dhtNodeMinimum
-                    , dhtNodeLimit
-                    , anonymousMode
-                    , enableLogging
-            )
-        }
-
-        /**
-         * Enable verbose logging of the torrent session.
-         */
-        fun logging(isEnabled: Boolean): Builder {
-            this.enableLogging = isEnabled
-            return this
-        }
+        val downloadLocation: File
 
         /**
          * If [onlyDownloadLargestFile] is true, then only the largest file in
          * the torrent is downloaded. Default value is, false.
          */
-        fun onlyDownloadLargestFile(onlyDownloadLargestFile: Boolean): Builder {
-            this.onlyDownloadLargestFile = onlyDownloadLargestFile
-            return this
-        }
-
-        /**
-         * If [shouldStream] is true, then all downloaded files are downloaded
-         * sequentially. Default value is, false
-         */
-        fun stream(shouldStream: Boolean): Builder {
-            this.shouldStream = shouldStream
-            return this
-        }
-
-        /**
-         * When streaming, the value of [bufferSize] is used to determine the maximum
-         * number of pieces to prioritize in the [@see TorrentSessionBuffer]. Default
-         * value, 8.
-         */
-        fun streamBufferSize(bufferSize: Int): Builder {
-            this.bufferSize = bufferSize
-            return this
-        }
-
-        /**
-         * The session-global limits of upload and download rate limits, in bytes per second.
-         * By default peers on the local network are not rate limited. Default value, 0 (infinity).
-         */
-        fun downloadRateLimit(downloadRateLimit: Int): Builder {
-            this.downloadRateLimit = downloadRateLimit
-            return this
-        }
-
-        /**
-         * The session-global limits of upload and download rate limits, in bytes per second.
-         * By default peers on the local network are not rate limited. Default value, 0 (infinity).
-         */
-        fun uploadRateLimit(uploadRateLimit: Int): Builder {
-            this.uploadRateLimit = uploadRateLimit
-            return this
-        }
-
-        /**
-         * The global limit on the number of connections opened. The number of connections
-         * is set to a hard minimum of at least two per torrent, so if you set a too low
-         * connections limit, and open too many torrents, the limit will not be met. Default
-         * value, 200.
-         */
-        fun connectionsLimit(connectionsLimit: Int): Builder {
-            this.connectionsLimit = connectionsLimit
-            return this
-        }
-
-        /**
-         * The minimum number of DHT nodes to wait for until magnet link downloads will start.
-         * Default value, 10.
-         */
-        fun dhtNodeMinimum(dhtMin: Int): Builder {
-            this.dhtNodeMinimum = dhtMin
-            return this
-        }
-
-        /**
-         * The max number of torrents to announce to the DHT. By default this is set to 88,
-         * which is no more than one DHT announce every 10 seconds.
-         */
-        fun dhtNodeLimit(dhtLimit: Int): Builder {
-            this.dhtNodeLimit = dhtLimit
-            return this
-        }
+        , val onlyDownloadLargestFile: Boolean = false
 
         /**
          * When [useAnonymousMode]is true, the client tries to hide its identity to a certain
@@ -162,11 +34,80 @@ class TorrentSessionOptions private constructor(
          * connections are accepted, NAT-PMP, UPnP, DHT and local peer discovery are all
          * turned off when this setting is enabled.
          */
-        fun anonymousMode(useAnonymousMode: Boolean): Builder {
-            this.anonymousMode = useAnonymousMode
-            return this
-        }
+        , val anonymousMode: Boolean = false
 
+        /**
+         * Enable verbose logging of the torrent session.
+         */
+        , val enableLogging: Boolean = false
+
+        /**
+         * If [shouldStream] is true, then all downloaded files are downloaded
+         * sequentially. Default value is, false
+         */
+        , val shouldStream: Boolean = false
+
+        /**
+         * When streaming, the value of [streamBufferSize] is used to determine the maximum
+         * number of pieces to prioritize in the [@see TorrentSessionBuffer]. Default
+         * value, 8.
+         */
+        , val streamBufferSize: Int = 8
+
+        /**
+         * The session-global limits of upload and download rate limits, in bytes per second.
+         * By default peers on the local network are not rate limited. Default value, 0 (infinity).
+         */
+        , val downloadRateLimit: Int = 0
+
+        /**
+         * The session-global limits of upload and download rate limits, in bytes per second.
+         * By default peers on the local network are not rate limited. Default value, 0 (infinity).
+         */
+        , val uploadRateLimit: Int = 0
+
+        /**
+         * The global limit on the number of connections opened. The number of connections
+         * is set to a hard minimum of at least two per torrent, so if you set a too low
+         * connections limit, and open too many torrents, the limit will not be met. Default
+         * value, 200.
+         */
+        , val connectionsLimit: Int = 200
+
+        /**
+         * The minimum number of DHT nodes to wait for until magnet link downloads will start.
+         * Default value, 10.
+         */
+        , val dhtNodeMinimum: Int = 10
+
+        /**
+         * The max number of torrents to announce to the DHT. By default this is set to 88,
+         * which is no more than one DHT announce every 10 seconds.
+         */
+        , val dhtNodeLimit: Int = 88
+) {
+    val settingsPack: SettingsPack = SettingsPack()
+            .downloadRateLimit(downloadRateLimit)
+            .uploadRateLimit(uploadRateLimit)
+            .connectionsLimit(connectionsLimit)
+            .activeDhtLimit(dhtNodeLimit)
+            .anonymousMode(anonymousMode)
+
+    init {
+        settingsPack.setString(settings_pack.string_types.dht_bootstrap_nodes.swigValue(), getDhtBootstrapNodeString())
     }
-}
 
+    /**
+     * Default list of DHT nodes.
+     */
+    private fun getDhtBootstrapNodeString(): String =
+            "router.bittorrent.com:6681" +
+                    ",dht.transmissionbt.com:6881" +
+                    ",dht.libtorrent.org:25401" +
+                    ",dht.aelitis.com:6881" +
+                    ",router.bitcomet.com:6881" +
+                    ",router.bitcomet.com:6881" +
+                    ",dht.transmissionbt.com:6881" +
+                    ",router.silotis.us:6881" // IPv6
+
+}

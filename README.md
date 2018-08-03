@@ -15,12 +15,12 @@ For example, the following code snippet sequentially downloads the largest file 
 val torrentUrl = Uri.parse("http://www.frostclick.com/torrents/video/animation/Big_Buck_Bunny_1080p_surround_frostclick.com_frostwire.com.torrent")
 val timeoutSeconds = 60
 
-val torrentSessionOptions = TorrentSessionOptions
-        .Builder(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
-        .onlyDownloadLargestFile(true)
-        .anonymousMode(true)
-        .stream(true)
-        .build()
+val torrentSessionOptions = TorrentSessionOptions(
+        downloadLocation = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        , onlyDownloadLargestFile = true
+        , enableLogging = true
+        , shouldStream = true
+)
 
 val torrentSession = TorrentSession(torrentUrl, torrentSessionOptions)
 
@@ -54,7 +54,7 @@ and add the following in the dependent module:
 
 ```gradle
 dependencies {
-    implementation 'com.github.masterwok:simple-torrent-android:0.1.0'
+    implementation 'com.github.masterwok:simple-torrent-android:0.2.0'
 }
 ```
 unless you're a fan of large APKs, you'll probably want to add the following to the build.gradle of your app so an APK is generated per ABI:

@@ -4,10 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.webkit.URLUtil
-import com.frostwire.jlibtorrent.AlertListener
-import com.frostwire.jlibtorrent.Priority
-import com.frostwire.jlibtorrent.SessionManager
-import com.frostwire.jlibtorrent.TorrentHandle
+import com.frostwire.jlibtorrent.*
 import com.frostwire.jlibtorrent.alerts.*
 import com.masterwok.simpletorrentandroid.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentandroid.extensions.*
@@ -43,6 +40,7 @@ class TorrentSession(
     private lateinit var saveLocationUri: Uri
     private lateinit var largestFileUri: Uri
 
+    private val sessionParams = SessionParams(torrentSessionOptions.settingsPack)
     private val alertListener = TorrentSessionAlertListener(this)
     private val dhtLock = Object()
 
@@ -289,11 +287,11 @@ class TorrentSession(
         largestFileUri = Uri.EMPTY
 
         torrentSessionBuffer = TorrentSessionBuffer(
-                bufferSize = if (torrentSessionOptions.shouldStream) torrentSessionOptions.bufferSize else 0
+                bufferSize = if (torrentSessionOptions.shouldStream) torrentSessionOptions.streamBufferSize else 0
         )
 
         if (!isRunning) {
-            start(torrentSessionOptions.build())
+            start(sessionParams)
         }
 
         val path = torrentUri.toString()
