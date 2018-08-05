@@ -8,6 +8,11 @@ import java.io.File
 
 
 /**
+ * Get the bencode of the [TorrentHandle].
+ */
+internal fun TorrentHandle.getBencode(): ByteArray? = torrentFile().bencode()
+
+/**
  * Get the seeder count of the [TorrentHandle].
  */
 internal fun TorrentHandle.getSeederCount(): Int = status().numSeeds()
