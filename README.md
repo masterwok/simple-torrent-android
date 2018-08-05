@@ -54,7 +54,7 @@ and add the following in the dependent module:
 
 ```gradle
 dependencies {
-    implementation 'com.github.masterwok:simple-torrent-android:0.2.0'
+    implementation 'com.github.masterwok:simple-torrent-android:0.2.1'
 }
 ```
 unless you're a fan of large APKs, you'll probably want to add the following to the build.gradle of your app so an APK is generated per ABI:
