@@ -37,8 +37,8 @@ class TorrentSession(
     var listener: TorrentSessionListener? = null
 
     private lateinit var torrentSessionBuffer: TorrentSessionBuffer
-    private lateinit var saveLocationUri: Uri
-    private lateinit var largestFileUri: Uri
+    private var saveLocationUri: Uri = Uri.EMPTY
+    private var largestFileUri: Uri = Uri.EMPTY
 
     private val sessionParams = SessionParams(torrentSessionOptions.settingsPack)
     private val alertListener = TorrentSessionAlertListener(this)
@@ -132,6 +132,11 @@ class TorrentSession(
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
         val torrentHandle = addTorrentAlert.handle()
 
+        if (largestFileUri == Uri.EMPTY || saveLocationUri == Uri.EMPTY) {
+            largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
+            saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
+        }
+
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
             torrentHandle.prioritizeLargestFile(Priority.NORMAL)
@@ -163,7 +168,6 @@ class TorrentSession(
         val pieceIndex = pieceFinishedAlert.pieceIndex()
 
         if (pieceIndex < torrentSessionBuffer.startIndex || pieceIndex > torrentSessionBuffer.endIndex) {
-            // TODO: WHY IS THIS HAPPENING?
             Log.w(Tag, "Out of range piece downloaded.")
             return
         }
