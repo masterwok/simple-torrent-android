@@ -6,7 +6,7 @@ An Android torrent client library powered by [frostwire-jlibtorrent](https://git
 
 ## Usage
 
-A single torrent download session is represented as the ```TorrentSession``` class. An instance of this class can be used to start, stop, pause, and resume a torrent download. When creating a new session, a ```TorrentSessionOptions``` instance along with a torrent ```Uri``` are required constructor parameters. The ```TorrentSessionOptions.Builder``` class can be used to create session options. The ```TorrentSessionListener``` interface can be implemented and set on the session to receive ```TorrentSessionStatus``` updates tied to the lifecycle of the torrent. The ```TorrentSessionBufferState``` is one of the properties of the status and represents the current state of the torrent piece buffer.
+A single torrent download session is represented as the ```TorrentSession``` class. An instance of this class can be used to start, stop, pause, and resume a torrent download. When creating a new session, a ```TorrentSessionOptions``` instance along with a torrent ```Uri``` are required constructor parameters. The ```TorrentSessionListener``` interface can be implemented and set on the session to receive ```TorrentSessionStatus``` updates tied to the lifecycle of the torrent. The ```TorrentSessionBufferState``` is one of the properties of the status and represents the current state of the torrent piece buffer.
 
 For example, the following code snippet sequentially downloads the largest file of the provided torrent to the downloads directory:
 
