@@ -13,7 +13,7 @@ import com.masterwok.simpletorrentandroid.extensions.*
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class TorrentSessionStatus private constructor(
         val torrentUri: Uri
-        , val state: State
+        , val state: TorrentStatus.State
         , val seederCount: Int
         , val downloadRate: Int
         , val uploadRate: Int
@@ -33,7 +33,7 @@ class TorrentSessionStatus private constructor(
                 , largestFileUri: Uri
         ): TorrentSessionStatus = TorrentSessionStatus(
                 torrentUri
-                , torrentHandle.status().state().toTorrentStreamStatusSate()
+                , torrentHandle.status().state()
                 , torrentHandle.getSeederCount()
                 , torrentHandle.getDownloadRate()
                 , torrentHandle.getUploadRate()
@@ -44,17 +44,6 @@ class TorrentSessionStatus private constructor(
                 , largestFileUri
                 , torrentSessionBuffer
         )
-
-        private fun TorrentStatus.State.toTorrentStreamStatusSate(): State = when (this) {
-            TorrentStatus.State.CHECKING_FILES -> State.CHECKING_FILES
-            TorrentStatus.State.DOWNLOADING_METADATA -> State.DOWNLOADING_METADATA
-            TorrentStatus.State.DOWNLOADING -> State.DOWNLOADING
-            TorrentStatus.State.FINISHED -> State.FINISHED
-            TorrentStatus.State.SEEDING -> State.SEEDING
-            TorrentStatus.State.ALLOCATING -> State.ALLOCATING
-            TorrentStatus.State.CHECKING_RESUME_DATA -> State.CHECKING_RESUME_DATA
-            TorrentStatus.State.UNKNOWN -> State.UNKNOWN
-        }
     }
 
     override fun toString(): String = "State: $state" +
@@ -66,20 +55,5 @@ class TorrentSessionStatus private constructor(
             ", Torrent Uri: $torrentUri" +
             ", Save Location: $saveLocationUri" +
             ", Video File: $videoFileUri"
-
-    enum class State(val value: Int) {
-        UNKNOWN(-1),
-        CHECKING_FILES(0),
-        DOWNLOADING_METADATA(1),
-        DOWNLOADING(2),
-        FINISHED(3),
-        SEEDING(4),
-        ALLOCATING(5),
-        CHECKING_RESUME_DATA(6);
-
-        companion object {
-            fun valueOf(value: Int): State = State.values().first { it.value == value }
-        }
-    }
 }
 

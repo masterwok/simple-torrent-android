@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.frostwire.jlibtorrent.TorrentHandle
+import com.frostwire.jlibtorrent.TorrentStatus
 import com.masterwok.demosimpletorrentandroid.R
 import com.masterwok.demosimpletorrentandroid.adapters.TabFragmentPagerAdapter
 import com.masterwok.simpletorrentandroid.TorrentSession
@@ -162,13 +163,13 @@ class TorrentFragment : Fragment()
     ) = configure("onMetadataReceived", torrentSessionStatus)
 
     private fun setPauseResumeButtonText() {
-        if (torrentSessionStatus?.state == TorrentSessionStatus.State.SEEDING) {
+        if (torrentSessionStatus?.state == TorrentStatus.State.SEEDING) {
             buttonPauseResume?.setText(R.string.button_seeding)
             buttonPauseResume?.isEnabled = false
             return
         }
 
-        if (torrentSessionStatus?.state == TorrentSessionStatus.State.FINISHED) {
+        if (torrentSessionStatus?.state == TorrentStatus.State.FINISHED) {
             buttonPauseResume?.setText(R.string.button_finished)
             buttonPauseResume?.isEnabled = false
             return
