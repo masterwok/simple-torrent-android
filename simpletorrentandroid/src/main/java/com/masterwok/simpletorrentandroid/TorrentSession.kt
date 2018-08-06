@@ -10,7 +10,9 @@ import com.masterwok.simpletorrentandroid.contracts.TorrentSessionListener
 import com.masterwok.simpletorrentandroid.extensions.*
 import com.masterwok.simpletorrentandroid.models.TorrentSessionBuffer
 import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
+import java.io.File
 import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLDecoder
 import java.security.InvalidParameterException
@@ -45,8 +47,22 @@ class TorrentSession(
     private val dhtLock = Object()
 
     init {
+        if (!hasValidTorrentUri) {
+            throw InvalidParameterException("Unrecognized torrent URI: $torrentUri")
+        }
+
         addListener(alertListener)
     }
+
+    private val hasValidTorrentUri: Boolean
+        get() {
+            val path = torrentUri.toString()
+
+            return path.startsWith("magnet")
+                    || URLUtil.isNetworkUrl(path)
+                    || URLUtil.isFileUrl(path)
+                    || URLUtil.isContentUrl(path)
+        }
 
     private fun createSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
             TorrentSessionStatus.createInstance(
@@ -115,27 +131,21 @@ class TorrentSession(
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentHandle = metadataReceivedAlert.handle()
 
-        largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
-        saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
+        setInitialTorrentState(torrentHandle)
 
         listener?.onMetadataReceived(
                 torrentHandle
                 , createSessionStatus(torrentHandle)
         )
-
-        download(
-                torrentHandle.torrentFile()
-                , torrentSessionOptions.downloadLocation
-        )
     }
 
-    private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
-        val torrentHandle = addTorrentAlert.handle()
-
-        if (largestFileUri == Uri.EMPTY || saveLocationUri == Uri.EMPTY) {
-            largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
-            saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
+    private fun setInitialTorrentState(torrentHandle: TorrentHandle) {
+        if (torrentHandle.torrentFile() == null) {
+            return
         }
+
+        largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
+        saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
 
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
@@ -151,6 +161,13 @@ class TorrentSession(
         if (torrentSessionOptions.shouldStream) {
             torrentHandle.setBufferPriorities(torrentSessionBuffer)
         }
+    }
+
+
+    private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
+        val torrentHandle = addTorrentAlert.handle()
+
+        setInitialTorrentState(torrentHandle)
 
         listener?.onAddTorrent(
                 torrentHandle
@@ -267,26 +284,75 @@ class TorrentSession(
 
     private fun downloadUsingMagnetUri(
             magnetUrl: String
-            , timeout: Int
-    ): Boolean = synchronized(dhtLock) {
+            , downloadLocation: File
+    ) = synchronized(dhtLock) {
         // We must wait for DHT to start
         if (!isDhtReady()) {
             dhtLock.wait()
         }
 
-        return fetchMagnet(
+        download(
                 URLDecoder.decode(magnetUrl, "utf-8")
-                , timeout
-        ) != null
+                , downloadLocation
+        )
     }
 
     /**
-     * Start the torrent session and abort if the session takes longer
-     * than the provided [timeout] to start. The provided [Context] is
-     * used to resolve an input stream from the content resolver when
-     * the URI is a file or content scheme.
+     * Download a torrent from the [torrentUrl] to the [downloadLocation] destination.
      */
-    fun start(context: Context, timeout: Int): Boolean {
+    private fun downloadUsingNetworkUri(
+            downloadLocation: File
+            , torrentUrl: URL
+    ) {
+        val connection = (torrentUrl.openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            instanceFollowRedirects = true
+        }
+
+        connection.connect()
+
+        if (connection.responseCode != 200) {
+            Log.w(Tag, "Unexpected response code returned from server: ${connection.responseCode}")
+        }
+
+        val data = connection
+                .inputStream
+                .readBytes()
+
+        download(
+                TorrentInfo.bdecode(data)
+                , downloadLocation
+        )
+    }
+
+
+    /**
+     * Download the torrent using a content URI. The provided [context] is used
+     * to resolve the content resolver.
+     */
+    private fun downloadUsingContentUri(
+            context: Context
+            , downloadLocation: File
+            , torrentUri: Uri
+    ) {
+        val bytes = context
+                .contentResolver
+                .openInputStream(torrentUri)
+                .readBytes()
+
+        download(
+                TorrentInfo.bdecode(bytes)
+                , downloadLocation
+        )
+    }
+
+    /**
+     * Attempt to start a torrent download. The provided [Context] is used to resolve
+     * an input stream from the content resolver when the URI is a file or content scheme.
+     */
+    fun start(context: Context) {
+        val path = torrentUri.toString()
+
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
 
@@ -298,30 +364,26 @@ class TorrentSession(
             start(sessionParams)
         }
 
-        val path = torrentUri.toString()
-
         if (path.startsWith("magnet")) {
-            return downloadUsingMagnetUri(path, timeout)
-        }
-
-        if (URLUtil.isNetworkUrl(path)) {
-            return downloadUsingNetworkUri(
+            downloadUsingMagnetUri(
+                    path
+                    , torrentSessionOptions.downloadLocation
+            )
+        } else if (URLUtil.isNetworkUrl(path)) {
+            downloadUsingNetworkUri(
                     torrentSessionOptions.downloadLocation
                     , URL(path)
-                    , timeout
             )
-        }
 
-        if (URLUtil.isFileUrl(path) || URLUtil.isContentUrl(path)) {
-            return downloadUsingContentUri(
+        } else if (URLUtil.isFileUrl(path) || URLUtil.isContentUrl(path)) {
+            downloadUsingContentUri(
                     context
                     , torrentSessionOptions.downloadLocation
                     , torrentUri
             )
         }
-
-        throw InvalidParameterException("Unrecognized torrent URI: $torrentUri")
     }
+
 
     override fun stop() {
         super.stop()

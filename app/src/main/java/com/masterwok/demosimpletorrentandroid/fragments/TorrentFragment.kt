@@ -34,6 +34,9 @@ class TorrentFragment : Fragment()
     private var tabIndex: Int = 0
 
     companion object {
+
+        private const val Tag = "TorrentFragment"
+
         fun newInstance(
                 context: Context
                 , tabIndex: Int
@@ -219,11 +222,12 @@ class TorrentFragment : Fragment()
         }
 
         override fun doInBackground(vararg args: Void) {
-            // Start the torrent and abort after 60 seconds if it fails to start.
-            val successful = torrentSession.get()?.start(context.get()!!, 60) ?: false
-
-            if (!successful) {
-                Log.e("TorrentFragment", "Download timed out.")
+            try {
+                torrentSession
+                        .get()
+                        ?.start(context.get()!!)
+            } catch (ex: Exception) {
+                Log.e(Tag, "Failed to start torrent", ex)
             }
         }
     }

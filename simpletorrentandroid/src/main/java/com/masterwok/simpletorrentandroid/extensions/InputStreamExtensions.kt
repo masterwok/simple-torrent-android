@@ -14,18 +14,14 @@ internal fun InputStream.readBytes(
     val outputStream = ByteArrayOutputStream()
     val buffer = ByteArray(bufferSize)
 
-    try {
-        while (true) {
-            val byteCount = read(buffer)
+    while (true) {
+        val byteCount = read(buffer)
 
-            if (byteCount <= 0) {
-                break
-            }
-
-            outputStream.write(buffer, 0, byteCount)
+        if (byteCount <= 0) {
+            break
         }
-    } catch (ignored: Exception) {
-        return ByteArray(0)
+
+        outputStream.write(buffer, 0, byteCount)
     }
 
     return outputStream.toByteArray()
