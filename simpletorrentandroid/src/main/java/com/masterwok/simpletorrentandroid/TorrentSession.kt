@@ -14,6 +14,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLDecoder
 import java.security.InvalidParameterException
 
 
@@ -37,12 +38,15 @@ class TorrentSession(
      */
     var listener: TorrentSessionListener? = null
 
+    private val sessionParams = SessionParams(torrentSessionOptions.settingsPack)
+    private val alertListener = TorrentSessionAlertListener(this)
+
     private lateinit var torrentSessionBuffer: TorrentSessionBuffer
+
+    private var shouldDownloadMagnetOnResume: Boolean = false
     private var saveLocationUri: Uri = Uri.EMPTY
     private var largestFileUri: Uri = Uri.EMPTY
 
-    private val sessionParams = SessionParams(torrentSessionOptions.settingsPack)
-    private val alertListener = TorrentSessionAlertListener(this)
 
     init {
         if (!hasValidTorrentUri) {
@@ -90,6 +94,8 @@ class TorrentSession(
                 }
 
                 when (alert.type()) {
+                    AlertType.DHT_BOOTSTRAP -> torrentSession.get()?.onDhtBootstrap()
+                    AlertType.DHT_STATS -> torrentSession.get()?.onDhtStats()
                     AlertType.METADATA_RECEIVED -> torrentSession.get()?.onMetadataReceived(alert as MetadataReceivedAlert)
                     AlertType.METADATA_FAILED -> torrentSession.get()?.onMetadataFailed(alert as MetadataFailedAlert)
                     AlertType.PIECE_FINISHED -> torrentSession.get()?.onPieceFinished(alert as PieceFinishedAlert)
@@ -113,6 +119,22 @@ class TorrentSession(
     }
 
     private fun isDhtReady() = stats().dhtNodes() >= torrentSessionOptions.dhtNodeMinimum
+
+    private val dhtLock = Object()
+
+    private fun onDhtStats() {
+        synchronized(dhtLock) {
+            if (isDhtReady()) {
+                dhtLock.notify()
+            }
+        }
+    }
+
+    private fun onDhtBootstrap() {
+        synchronized(dhtLock) {
+            dhtLock.notify()
+        }
+    }
 
     private fun onMetadataReceived(metadataReceivedAlert: MetadataReceivedAlert) {
         val torrentHandle = metadataReceivedAlert.handle()
@@ -326,6 +348,41 @@ class TorrentSession(
         )
     }
 
+    private fun downloadUsingMagnetUri(
+            magnetUrl: String
+            , downloadLocation: File
+    ) = synchronized(dhtLock) {
+        shouldDownloadMagnetOnResume = false
+
+        // We must wait for DHT to start
+        if (!isDhtReady()) {
+            dhtLock.wait()
+        }
+
+        // Session was paused while waiting on DHT, defer until resume
+        if (isPaused) {
+            shouldDownloadMagnetOnResume = true
+            return
+        }
+
+        download(
+                URLDecoder.decode(magnetUrl, "utf-8")
+                , downloadLocation
+        )
+    }
+
+    override fun resume() {
+        super.resume()
+
+        // Session was paused before DHT could become active, retry magnet download.
+        if (shouldDownloadMagnetOnResume) {
+            downloadUsingMagnetUri(
+                    torrentUri.toString()
+                    , torrentSessionOptions.downloadLocation
+            )
+        }
+    }
+
     /**
      * Attempt to start a torrent download. The provided [Context] is used to resolve
      * an input stream from the content resolver when the URI is a file or content scheme.
@@ -345,7 +402,7 @@ class TorrentSession(
         }
 
         if (path.startsWith("magnet")) {
-            download(
+            downloadUsingMagnetUri(
                     path
                     , torrentSessionOptions.downloadLocation
             )
