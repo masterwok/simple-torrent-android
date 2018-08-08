@@ -11,6 +11,9 @@ class TorrentSessionBuffer constructor(
         , val startIndex: Int = 0
         , val endIndex: Int = 0
 ) {
+    @Suppress("unused")
+    constructor() : this(0, 0, 0)
+
     /**
      * The total number of pieces.
      */
