@@ -7,7 +7,7 @@ package com.masterwok.simpletorrentandroid.models
  */
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
 class TorrentSessionBuffer constructor(
-        val bufferSize: Int
+        val bufferSize: Int = 0
         , val startIndex: Int = 0
         , val endIndex: Int = 0
 ) {
