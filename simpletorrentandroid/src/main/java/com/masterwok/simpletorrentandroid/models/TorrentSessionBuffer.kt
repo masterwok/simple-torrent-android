@@ -6,7 +6,7 @@ package com.masterwok.simpletorrentandroid.models
  * used internally to keep track of which pieces to prioritize when streaming.
  */
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
-class TorrentSessionBuffer internal constructor(
+class TorrentSessionBuffer constructor(
         val bufferSize: Int
         , val startIndex: Int = 0
         , val endIndex: Int = 0
