@@ -36,7 +36,7 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
                             false
                     ))
 
-    override fun getItemCount(): Int = latestUpdatedBuffer.pieceCount
+    override fun getItemCount(): Int = latestUpdatedBuffer.pieceCount ?: 0
 
     override fun onBindViewHolder(holder: PieceViewHolder, position: Int) {
         val context = holder.itemView.context
