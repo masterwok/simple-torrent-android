@@ -14,6 +14,7 @@ import com.masterwok.simpletorrentandroid.extensions.*
 class TorrentSessionStatus private constructor(
         val torrentUri: Uri
         , val state: TorrentStatus.State
+        , val bencode: ByteArray
         , val seederCount: Int
         , val downloadRate: Int
         , val uploadRate: Int
@@ -28,12 +29,14 @@ class TorrentSessionStatus private constructor(
         fun createInstance(
                 torrentUri: Uri
                 , torrentHandle: TorrentHandle
+                , bencode: ByteArray
                 , torrentSessionBuffer: TorrentSessionBuffer
                 , saveLocationUri: Uri
                 , largestFileUri: Uri
         ): TorrentSessionStatus = TorrentSessionStatus(
                 torrentUri
                 , torrentHandle.status().state()
+                , bencode
                 , torrentHandle.getSeederCount()
                 , torrentHandle.getDownloadRate()
                 , torrentHandle.getUploadRate()
@@ -47,6 +50,7 @@ class TorrentSessionStatus private constructor(
     }
 
     override fun toString(): String = "State: $state" +
+            ", Bencode Size: ${bencode.size}" +
             ", Seeder Count: $seederCount" +
             ", Download Rate: $downloadRate" +
             ", Upload Rate: $uploadRate" +

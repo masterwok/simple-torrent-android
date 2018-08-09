@@ -44,6 +44,7 @@ class TorrentSession(
     private lateinit var torrentSessionBuffer: TorrentSessionBuffer
 
     private var shouldDownloadMagnetOnResume: Boolean = false
+    private var bencode: ByteArray = ByteArray(0)
     private var saveLocationUri: Uri = Uri.EMPTY
     private var largestFileUri: Uri = Uri.EMPTY
 
@@ -74,6 +75,7 @@ class TorrentSession(
             TorrentSessionStatus.createInstance(
                     torrentUri
                     , torrentHandle
+                    , bencode
                     , torrentSessionBuffer
                     , saveLocationUri
                     , largestFileUri
@@ -154,6 +156,7 @@ class TorrentSession(
 
         largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
         saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
+        bencode = torrentHandle.getBencode()
 
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
@@ -170,7 +173,6 @@ class TorrentSession(
             torrentHandle.setBufferPriorities(torrentSessionBuffer)
         }
     }
-
 
     private fun onAddTorrent(addTorrentAlert: AddTorrentAlert) {
         val torrentHandle = addTorrentAlert.handle()
@@ -390,6 +392,7 @@ class TorrentSession(
     fun start(context: Context) {
         val path = torrentUri.toString()
 
+        bencode = ByteArray(0)
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
 
