@@ -398,6 +398,10 @@ class TorrentSession(
     fun start(bencode: ByteArray) {
         setInitialStartState()
 
+        if (!sessionManager.isRunning) {
+            sessionManager.start(sessionParams)
+        }
+
         sessionManager.download(
                 TorrentInfo.bdecode(bencode)
                 , torrentSessionOptions.downloadLocation
