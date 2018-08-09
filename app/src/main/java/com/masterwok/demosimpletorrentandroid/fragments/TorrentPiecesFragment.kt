@@ -51,7 +51,7 @@ class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<To
 
     override fun configure(model: TorrentSessionStatus) {
         recyclerView.post {
-            torrentPieceAdapter.configure(model)
+            torrentPieceAdapter.configure(model.torrentSessionBuffer)
         }
     }
 }

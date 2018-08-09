@@ -2,6 +2,7 @@ package com.masterwok.demosimpletorrentandroid.adapters
 
 import android.content.Context
 import android.support.v4.content.ContextCompat
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -9,9 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.masterwok.demosimpletorrentandroid.R
 import com.masterwok.simpletorrentandroid.models.TorrentSessionBuffer
-import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
+
 
 class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHolder>() {
+
+    private var latestUpdatedBuffer: TorrentSessionBuffer = TorrentSessionBuffer()
 
     class PieceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -23,12 +26,6 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
 
     }
 
-    private lateinit var torrentSessionBuffer: TorrentSessionBuffer
-
-    private var isInitialized = false
-
-    private var lastCompletedPieceCount = 0
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PieceViewHolder =
             PieceViewHolder(LayoutInflater
                     .from(parent.context)
@@ -38,7 +35,7 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
                             false
                     ))
 
-    override fun getItemCount(): Int = if (isInitialized) torrentSessionBuffer.pieceCount else 0
+    override fun getItemCount(): Int = latestUpdatedBuffer.pieceCount ?: 0
 
     override fun onBindViewHolder(holder: PieceViewHolder, position: Int) {
         val context = holder.itemView.context
@@ -50,17 +47,17 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             context: Context
             , position: Int
     ): Int {
-        val isDownloaded = torrentSessionBuffer.isPieceDownloaded(position)
+        val isDownloaded = latestUpdatedBuffer.isPieceDownloaded(position)
 
         if (isDownloaded) {
             return ContextCompat.getColor(context, R.color.green)
         }
 
-        if (torrentSessionBuffer.bufferSize == 0) {
+        if (latestUpdatedBuffer.bufferSize == 0) {
             return ContextCompat.getColor(context, R.color.purple)
         }
 
-        if (torrentSessionBuffer.bufferHeadIndex == position) {
+        if (latestUpdatedBuffer.bufferHeadIndex == position) {
             if (isDownloaded) {
                 return ContextCompat.getColor(context, R.color.blue)
             }
@@ -68,26 +65,67 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             return ContextCompat.getColor(context, R.color.red)
         }
 
-        if (position > torrentSessionBuffer.bufferHeadIndex
-                && position <= torrentSessionBuffer.bufferTailIndex) {
+        if (position > latestUpdatedBuffer.bufferHeadIndex
+                && position <= latestUpdatedBuffer.bufferTailIndex) {
             return ContextCompat.getColor(context, R.color.yellow)
         }
 
         return ContextCompat.getColor(context, R.color.purple)
     }
 
-    fun configure(torrentSessionStatus: TorrentSessionStatus) {
-        val downloadedPieceCount = torrentSessionStatus
-                .torrentSessionBuffer
-                .downloadedPieceCount
+    fun configure(buffer: TorrentSessionBuffer) {
 
-        if (downloadedPieceCount != lastCompletedPieceCount) {
-            lastCompletedPieceCount = downloadedPieceCount
-            torrentSessionBuffer = torrentSessionStatus.torrentSessionBuffer
-            isInitialized = true
-
+        if (latestUpdatedBuffer.pieceCount != buffer.pieceCount) {
+            latestUpdatedBuffer = buffer
             notifyDataSetChanged()
+            return
         }
+
+        val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+
+            override fun areItemsTheSame(oldIndex: Int, newIndex: Int): Boolean {
+                return true
+            }
+
+            override fun getOldListSize(): Int = latestUpdatedBuffer.pieceCount
+
+            override fun getNewListSize(): Int = buffer.pieceCount
+
+            private fun isHeadIndex(buffer: TorrentSessionBuffer, index: Int): Boolean =
+                    buffer.bufferHeadIndex == index
+
+            private fun isTailIndex(buffer: TorrentSessionBuffer, index: Int): Boolean =
+                    buffer.bufferTailIndex == index
+
+            private fun isBufferBody(buffer: TorrentSessionBuffer, index: Int): Boolean =
+                    buffer.bufferHeadIndex < index
+                            && index < buffer.bufferTailIndex
+
+            override fun areContentsTheSame(oldIndex: Int, newIndex: Int): Boolean {
+                val oldIsDownloaded = latestUpdatedBuffer.isPieceDownloaded(oldIndex)
+                val newIsDownloaded = buffer.isPieceDownloaded(newIndex)
+
+                if (oldIsDownloaded != newIsDownloaded) {
+                    return false
+                }
+
+                val oldIsHeadIndex = isHeadIndex(latestUpdatedBuffer, oldIndex)
+                val oldIsTailIndex = isTailIndex(latestUpdatedBuffer, oldIndex)
+                val oldIsBufferBody = isBufferBody(latestUpdatedBuffer, oldIndex)
+
+                val newIsHeadIndex = isHeadIndex(buffer, newIndex)
+                val newIsTailIndex = isTailIndex(buffer, newIndex)
+                val newIsBufferBody = isBufferBody(buffer, newIndex)
+
+                return oldIsHeadIndex == newIsHeadIndex
+                        && oldIsTailIndex == newIsTailIndex
+                        && oldIsBufferBody == newIsBufferBody
+            }
+        })
+
+        latestUpdatedBuffer = buffer
+
+        result.dispatchUpdatesTo(this)
     }
 
 }
