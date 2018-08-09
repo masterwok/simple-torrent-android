@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import com.masterwok.demosimpletorrentandroid.R
 import com.masterwok.demosimpletorrentandroid.adapters.TabFragmentPagerAdapter
 import com.masterwok.demosimpletorrentandroid.adapters.TorrentPieceAdapter
+import com.masterwok.demosimpletorrentandroid.extensions.setSupportsChangeAnimations
 import com.masterwok.simpletorrentandroid.models.TorrentSessionStatus
 
 
@@ -31,7 +32,7 @@ class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<To
         )
 
         bindViewComponents(view)
-        initPiecesRecyclerView(view)
+        initPiecesRecyclerView()
 
         return view
     }
@@ -40,18 +41,20 @@ class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<To
         recyclerView = view.findViewById(R.id.recycler_view_pieces)
     }
 
-    private fun initPiecesRecyclerView(view: View) {
+    private fun initPiecesRecyclerView() {
         recyclerView.apply {
-            layoutManager = GridLayoutManager(view.context, 16)
+            layoutManager = GridLayoutManager(context, 16)
             adapter = torrentPieceAdapter
+            setSupportsChangeAnimations(false)
         }
     }
 
     override fun getTitle(): String = "Pieces"
 
     override fun configure(model: TorrentSessionStatus) {
-        recyclerView.post {
+        activity?.runOnUiThread {
             torrentPieceAdapter.configure(model.torrentSessionBuffer)
+
         }
     }
 }
