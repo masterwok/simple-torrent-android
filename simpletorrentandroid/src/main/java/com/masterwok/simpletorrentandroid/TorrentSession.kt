@@ -26,8 +26,6 @@ import java.security.InvalidParameterException
 class TorrentSession(
         val torrentUri: Uri
         , private val torrentSessionOptions: TorrentSessionOptions
-) : SessionManager(
-        torrentSessionOptions.enableLogging
 ) {
     companion object {
         private const val Tag = "TorrentSession"
@@ -41,6 +39,8 @@ class TorrentSession(
     private val sessionParams = SessionParams(torrentSessionOptions.settingsPack)
     private val alertListener = TorrentSessionAlertListener(this)
 
+    private val sessionManager = SessionManager(torrentSessionOptions.enableLogging)
+
     private lateinit var torrentSessionBuffer: TorrentSessionBuffer
 
     private var shouldDownloadMagnetOnResume: Boolean = false
@@ -53,12 +53,12 @@ class TorrentSession(
             throw InvalidParameterException("Unrecognized torrent URI: $torrentUri")
         }
 
-        addListener(alertListener)
+        sessionManager.addListener(alertListener)
     }
 
     private fun isTorrentPaused(torrentHandle: TorrentHandle): Boolean =
             torrentHandle.status().flags().and_(TorrentFlags.PAUSED).nonZero()
-                    || isPaused
+                    || sessionManager.isPaused
 
     private val hasValidTorrentUri: Boolean
         get() {
@@ -118,7 +118,7 @@ class TorrentSession(
         override fun types(): IntArray? = null
     }
 
-    private fun isDhtReady() = stats().dhtNodes() >= torrentSessionOptions.dhtNodeMinimum
+    private fun isDhtReady() = sessionManager.stats().dhtNodes() >= torrentSessionOptions.dhtNodeMinimum
 
     private val dhtLock = Object()
 
@@ -321,7 +321,7 @@ class TorrentSession(
                 .inputStream
                 .readBytes()
 
-        download(
+        sessionManager.download(
                 TorrentInfo.bdecode(data)
                 , downloadLocation
         )
@@ -342,7 +342,7 @@ class TorrentSession(
                 .openInputStream(torrentUri)
                 .readBytes()
 
-        download(
+        sessionManager.download(
                 TorrentInfo.bdecode(bytes)
                 , downloadLocation
         )
@@ -360,19 +360,19 @@ class TorrentSession(
         }
 
         // Session was paused while waiting on DHT, defer until resume
-        if (isPaused) {
+        if (sessionManager.isPaused) {
             shouldDownloadMagnetOnResume = true
             return
         }
 
-        download(
+        sessionManager.download(
                 URLDecoder.decode(magnetUrl, "utf-8")
                 , downloadLocation
         )
     }
 
-    override fun resume() {
-        super.resume()
+    fun resume() {
+        sessionManager.resume()
 
         // Session was paused before DHT could become active, retry magnet download.
         if (shouldDownloadMagnetOnResume) {
@@ -397,8 +397,8 @@ class TorrentSession(
                 bufferSize = if (torrentSessionOptions.shouldStream) torrentSessionOptions.streamBufferSize else 0
         )
 
-        if (!isRunning) {
-            start(sessionParams)
+        if (!sessionManager.isRunning) {
+            sessionManager.start(sessionParams)
         }
 
         if (path.startsWith("magnet")) {
@@ -421,11 +421,16 @@ class TorrentSession(
         }
     }
 
+    val isPaused: Boolean get() = sessionManager.isPaused
 
-    override fun stop() {
-        super.stop()
+    val isRunning: Boolean get() = sessionManager.isRunning
 
-        removeListener(alertListener)
+    fun pause() = sessionManager.pause()
+
+    fun stop() {
+        sessionManager.stop()
+
+        sessionManager.removeListener(alertListener)
     }
 
 }
