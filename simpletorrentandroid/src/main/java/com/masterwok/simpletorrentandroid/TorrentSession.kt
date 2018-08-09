@@ -385,13 +385,7 @@ class TorrentSession(
         }
     }
 
-    /**
-     * Attempt to start a torrent download. The provided [Context] is used to resolve
-     * an input stream from the content resolver when the URI is a file or content scheme.
-     */
-    fun start(context: Context) {
-        val path = torrentUri.toString()
-
+    private fun setInitialStartState() {
         bencode = ByteArray(0)
         saveLocationUri = Uri.EMPTY
         largestFileUri = Uri.EMPTY
@@ -399,6 +393,25 @@ class TorrentSession(
         torrentSessionBuffer = TorrentSessionBuffer(
                 bufferSize = if (torrentSessionOptions.shouldStream) torrentSessionOptions.streamBufferSize else 0
         )
+    }
+
+    fun start(bencode: ByteArray) {
+        setInitialStartState()
+
+        sessionManager.download(
+                TorrentInfo.bdecode(bencode)
+                , torrentSessionOptions.downloadLocation
+        )
+    }
+
+    /**
+     * Attempt to start a torrent download. The provided [Context] is used to resolve
+     * an input stream from the content resolver when the URI is a file or content scheme.
+     */
+    fun start(context: Context) {
+        setInitialStartState()
+
+        val path = torrentUri.toString()
 
         if (!sessionManager.isRunning) {
             sessionManager.start(sessionParams)
