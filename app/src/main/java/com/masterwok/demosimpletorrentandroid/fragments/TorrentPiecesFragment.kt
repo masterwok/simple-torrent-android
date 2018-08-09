@@ -54,7 +54,6 @@ class TorrentPiecesFragment : Fragment(), TabFragmentPagerAdapter.TabFragment<To
     override fun configure(model: TorrentSessionStatus) {
         activity?.runOnUiThread {
             torrentPieceAdapter.configure(model.torrentSessionBuffer)
-
         }
     }
 }
