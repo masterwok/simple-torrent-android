@@ -437,6 +437,10 @@ class TorrentSession(
         }
     }
 
+    val uploadRate: Long get() = sessionManager.uploadRate()
+
+    val downloadRate: Long get() = sessionManager.downloadRate()
+
     val isPaused: Boolean get() = sessionManager.isPaused
 
     val isRunning: Boolean get() = sessionManager.isRunning
