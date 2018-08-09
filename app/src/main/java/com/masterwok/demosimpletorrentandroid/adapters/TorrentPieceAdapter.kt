@@ -1,6 +1,5 @@
 package com.masterwok.demosimpletorrentandroid.adapters
 
-
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.support.v7.util.DiffUtil
@@ -49,13 +48,8 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             , position: Int
     ): Int {
         val isDownloaded = latestUpdatedBuffer.isPieceDownloaded(position)
-        val isHeadIndex = latestUpdatedBuffer.bufferHeadIndex == position
 
         if (isDownloaded) {
-            if (isHeadIndex) {
-                return ContextCompat.getColor(context, R.color.blue)
-            }
-
             return ContextCompat.getColor(context, R.color.green)
         }
 
@@ -63,7 +57,11 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             return ContextCompat.getColor(context, R.color.purple)
         }
 
-        if (isHeadIndex) {
+        if (latestUpdatedBuffer.bufferHeadIndex == position) {
+            if (isDownloaded) {
+                return ContextCompat.getColor(context, R.color.blue)
+            }
+
             return ContextCompat.getColor(context, R.color.red)
         }
 
