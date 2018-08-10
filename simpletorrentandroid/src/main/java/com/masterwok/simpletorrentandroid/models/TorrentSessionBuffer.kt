@@ -17,7 +17,7 @@ class TorrentSessionBuffer constructor(
     /**
      * The total number of pieces.
      */
-    val pieceCount = (endIndex - startIndex) + 1
+    val pieceCount = if (startIndex == 0 && endIndex == 0) 0 else (endIndex - startIndex) + 1
 
     /**
      * The number of pieces downloaded.

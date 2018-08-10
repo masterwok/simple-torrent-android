@@ -22,7 +22,7 @@ import java.security.InvalidParameterException
  * This class is used to control a torrent download session.
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class TorrentSession(
+open class TorrentSession(
         private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
@@ -150,7 +150,7 @@ class TorrentSession(
         largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
         saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
         bencode = torrentHandle.getBencode()
-        magnetUri = Uri.parse(torrentHandle.makeMagnetUri())
+        magnetUri = Uri.parse(URLDecoder.decode(torrentHandle.makeMagnetUri(), "utf-8"))
 
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
