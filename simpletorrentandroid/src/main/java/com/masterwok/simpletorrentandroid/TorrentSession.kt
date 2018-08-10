@@ -150,10 +150,7 @@ class TorrentSession(
         largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
         saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
         bencode = torrentHandle.getBencode()
-
-        if (torrentUri == Uri.EMPTY) {
-            torrentUri = Uri.parse(torrentHandle.makeMagnetUri())
-        }
+        torrentUri = Uri.parse(torrentHandle.makeMagnetUri())
 
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
@@ -410,8 +407,6 @@ class TorrentSession(
      * an input stream from the content resolver when the URI is a file or content scheme.
      */
     fun start(context: Context, torrentUri: Uri) {
-        this.torrentUri = torrentUri
-
         setInitialStartState()
 
         if (!isValidTorrentUri(torrentUri)) {
