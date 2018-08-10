@@ -51,8 +51,13 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             , position: Int
     ): Int {
         val isDownloaded = torrentSessionBuffer.isPieceDownloaded(position)
+        val isHeadIndex = torrentSessionBuffer.bufferHeadIndex == position
 
         if (isDownloaded) {
+            if (isHeadIndex) {
+                return ContextCompat.getColor(context, R.color.blue)
+            }
+
             return ContextCompat.getColor(context, R.color.green)
         }
 
@@ -60,11 +65,7 @@ class TorrentPieceAdapter : RecyclerView.Adapter<TorrentPieceAdapter.PieceViewHo
             return ContextCompat.getColor(context, R.color.purple)
         }
 
-        if (torrentSessionBuffer.bufferHeadIndex == position) {
-            if (isDownloaded) {
-                return ContextCompat.getColor(context, R.color.blue)
-            }
-
+        if (isHeadIndex) {
             return ContextCompat.getColor(context, R.color.red)
         }
 
