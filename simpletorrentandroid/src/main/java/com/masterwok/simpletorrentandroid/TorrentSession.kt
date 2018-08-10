@@ -389,6 +389,9 @@ open class TorrentSession(
         )
     }
 
+    /**
+     * Start the session using BEncoded data contained within the [bencode] [ByteArray].
+     */
     fun start(bencode: ByteArray) {
         setInitialStartState()
 
