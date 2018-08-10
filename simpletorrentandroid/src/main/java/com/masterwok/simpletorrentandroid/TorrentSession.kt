@@ -19,13 +19,11 @@ import java.security.InvalidParameterException
 
 
 /**
- * This class is used to control a torrent download session for the provided [torrentUri].
- * It is configured using the provided [torrentSessionOptions].
+ * This class is used to control a torrent download session.
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class TorrentSession(
-        val torrentUri: Uri
-        , private val torrentSessionOptions: TorrentSessionOptions
+        private val torrentSessionOptions: TorrentSessionOptions
 ) {
     companion object {
         private const val Tag = "TorrentSession"
@@ -47,13 +45,9 @@ class TorrentSession(
     private var bencode: ByteArray = ByteArray(0)
     private var saveLocationUri: Uri = Uri.EMPTY
     private var largestFileUri: Uri = Uri.EMPTY
-
+    private var torrentUri: Uri = Uri.EMPTY
 
     init {
-        if (!hasValidTorrentUri) {
-            throw InvalidParameterException("Unrecognized torrent URI: $torrentUri")
-        }
-
         sessionManager.addListener(alertListener)
     }
 
@@ -61,15 +55,14 @@ class TorrentSession(
             torrentHandle.status().flags().and_(TorrentFlags.PAUSED).nonZero()
                     || sessionManager.isPaused
 
-    private val hasValidTorrentUri: Boolean
-        get() {
-            val path = torrentUri.toString()
+    private fun isValidTorrentUri(torrentUri: Uri): Boolean {
+        val path = torrentUri.toString()
 
-            return path.startsWith("magnet")
-                    || URLUtil.isNetworkUrl(path)
-                    || URLUtil.isFileUrl(path)
-                    || URLUtil.isContentUrl(path)
-        }
+        return path.startsWith("magnet")
+                || URLUtil.isNetworkUrl(path)
+                || URLUtil.isFileUrl(path)
+                || URLUtil.isContentUrl(path)
+    }
 
     private fun createSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
             TorrentSessionStatus.createInstance(
@@ -157,6 +150,10 @@ class TorrentSession(
         largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
         saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
         bencode = torrentHandle.getBencode()
+
+        if (torrentUri == Uri.EMPTY) {
+            torrentUri = Uri.parse(torrentHandle.makeMagnetUri())
+        }
 
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
@@ -412,8 +409,14 @@ class TorrentSession(
      * Attempt to start a torrent download. The provided [Context] is used to resolve
      * an input stream from the content resolver when the URI is a file or content scheme.
      */
-    fun start(context: Context) {
+    fun start(context: Context, torrentUri: Uri) {
+        this.torrentUri = torrentUri
+
         setInitialStartState()
+
+        if (!isValidTorrentUri(torrentUri)) {
+            throw InvalidParameterException("Unrecognized torrent URI: $torrentUri")
+        }
 
         val path = torrentUri.toString()
 

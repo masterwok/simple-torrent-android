@@ -46,7 +46,7 @@ class TorrentFragment : Fragment()
         ): TorrentFragment = TorrentFragment().apply {
             this.tabIndex = tabIndex
 
-            torrentSession = TorrentSession(magnetUri, torrentSessionOptions)
+            torrentSession = TorrentSession(torrentSessionOptions)
             torrentSession.listener = this
 
             startDownloadTask = DownloadTask(context, torrentSession, magnetUri)
@@ -226,7 +226,7 @@ class TorrentFragment : Fragment()
             try {
                 torrentSession
                         .get()
-                        ?.start(context.get()!!)
+                        ?.start(context.get()!!, magnetUri)
             } catch (ex: Exception) {
                 Log.e(Tag, "Failed to start torrent", ex)
             }
