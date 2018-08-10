@@ -34,6 +34,7 @@ torrentSession.listener = object : TorrentSessionListener {
 }
 
 torrentSession.start(context, torrentUri) 
+// OR torrentSession.start(bencodeByteArray)
 
 ```
 
