@@ -10,7 +10,9 @@ import java.io.File
 /**
  * Get the bencode of the [TorrentHandle].
  */
-internal fun TorrentHandle.getBencode(): ByteArray = torrentFile()?.bencode() ?: ByteArray(0)
+internal fun TorrentHandle.getBencode(): ByteArray = torrentFile()
+        ?.bencode()
+        ?: ByteArray(0)
 
 /**
  * Get the seeder count of the [TorrentHandle].
@@ -70,40 +72,20 @@ internal fun TorrentHandle.ignoreAllFiles() = prioritizeFiles(
         Array(torrentFile().numFiles()) { Priority.IGNORE }
 )
 
-/**
- * Get the first non-ignored piece index of the [TorrentHandle].
- * If a non-ignored piece can't be found, then -1 is returned.
- */
-internal fun TorrentHandle.getFirstNonIgnoredPieceIndex(): Int = piecePriorities().indexOfFirst {
-    it != Priority.IGNORE
-}
+internal fun TorrentHandle.getStartPieceIndex(fileIndex: Int): Int =
+        torrentFile()
+                .mapFile(fileIndex, 0, 1)
+                .piece()
 
-/**
- * Get the last non-ignored piece of the [TorrentHandle].
- * If a non-ignored piece can't be found, then -1 is returned.
- */
-internal fun TorrentHandle.getLastNonIgnoredPieceIndex(): Int = piecePriorities().indexOfLast {
-    it != Priority.IGNORE
-}
+internal fun TorrentHandle.getFileSize(fileIndex: Int): Long =
+        torrentFile()
+                .files()
+                .fileSize(fileIndex)
 
-/**
- * Get the first non-downloaded piece between the range of, [startIndex] and [endIndex]
- * of the [TorrentHandle]. If all pieces have been downloaded, then -1 is returned.
- */
-internal fun TorrentHandle.getFirstNonDownloadedPieceInRange(
-        startIndex: Int
-        , endIndex: Int
-): Int = (startIndex..endIndex).indexOfFirst {
-    !havePiece(it)
-}
-
-/**
- * Get the first non-downloaded, non-ignored piece index of the [TorrentHandle].
- */
-internal fun TorrentHandle.getFirstMissingPieceIndex(
-): Int = (getFirstNonIgnoredPieceIndex()..getLastNonIgnoredPieceIndex()).indexOfFirst {
-    !havePiece(it)
-}
+internal fun TorrentHandle.getEndPieceIndex(fileIndex: Int): Int =
+        torrentFile()
+                .mapFile(fileIndex, getFileSize(fileIndex) - 1, 1)
+                .piece()
 
 /**
  * Set the priorities of the pieces of the [TorrentHandle] so that pieces are downloaded
@@ -114,10 +96,10 @@ internal fun TorrentHandle.getFirstMissingPieceIndex(
  */
 internal fun TorrentHandle.setBufferPriorities(
         torrentSessionBuffer: TorrentSessionBuffer
-) {
-//    clearPieceDeadlines()
-    setPiecePriorities(torrentSessionBuffer.bufferHeadIndex, torrentSessionBuffer.bufferTailIndex)
-}
+) = setPiecePriorities(
+        torrentSessionBuffer.bufferHeadIndex
+        , torrentSessionBuffer.bufferTailIndex
+)
 
 internal fun TorrentHandle.setPiecePriorities(
         startIndex: Int

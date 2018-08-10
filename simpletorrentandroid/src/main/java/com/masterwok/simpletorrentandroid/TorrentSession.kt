@@ -157,10 +157,12 @@ open class TorrentSession(
             torrentHandle.prioritizeLargestFile(Priority.NORMAL)
         }
 
+        val largestFileIndex = torrentHandle.getLargestFileIndex()
+
         torrentSessionBuffer = TorrentSessionBuffer(
                 torrentSessionBuffer.bufferSize
-                , torrentHandle.getFirstNonIgnoredPieceIndex()
-                , torrentHandle.getLastNonIgnoredPieceIndex()
+                , torrentHandle.getStartPieceIndex(largestFileIndex)
+                , torrentHandle.getEndPieceIndex(largestFileIndex)
         )
 
         if (torrentSessionOptions.shouldStream) {
