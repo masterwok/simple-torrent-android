@@ -12,7 +12,7 @@ import com.masterwok.simpletorrentandroid.extensions.*
  */
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class TorrentSessionStatus private constructor(
-        val torrentUri: Uri
+        val magnetUri: Uri
         , val state: TorrentStatus.State
         , val bencode: ByteArray
         , val seederCount: Int
@@ -27,14 +27,14 @@ class TorrentSessionStatus private constructor(
 ) {
     internal companion object {
         fun createInstance(
-                torrentUri: Uri
+                magnetUri: Uri
                 , torrentHandle: TorrentHandle
                 , bencode: ByteArray
                 , torrentSessionBuffer: TorrentSessionBuffer
                 , saveLocationUri: Uri
                 , largestFileUri: Uri
         ): TorrentSessionStatus = TorrentSessionStatus(
-                torrentUri
+                magnetUri
                 , torrentHandle.status().state()
                 , bencode
                 , torrentHandle.getSeederCount()
@@ -56,7 +56,7 @@ class TorrentSessionStatus private constructor(
             ", Upload Rate: $uploadRate" +
             ", Progress: $bytesDownloaded/$bytesWanted ($progress)" +
             ", $torrentSessionBuffer" +
-            ", Torrent Uri: $torrentUri" +
+            ", Magnet Uri: $magnetUri" +
             ", Save Location: $saveLocationUri" +
             ", Video File: $videoFileUri"
 }

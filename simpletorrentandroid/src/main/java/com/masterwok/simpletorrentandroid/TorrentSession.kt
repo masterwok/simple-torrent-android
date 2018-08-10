@@ -45,7 +45,7 @@ class TorrentSession(
     private var bencode: ByteArray = ByteArray(0)
     private var saveLocationUri: Uri = Uri.EMPTY
     private var largestFileUri: Uri = Uri.EMPTY
-    private var torrentUri: Uri = Uri.EMPTY
+    private var magnetUri: Uri = Uri.EMPTY
 
     init {
         sessionManager.addListener(alertListener)
@@ -66,7 +66,7 @@ class TorrentSession(
 
     private fun createSessionStatus(torrentHandle: TorrentHandle): TorrentSessionStatus =
             TorrentSessionStatus.createInstance(
-                    torrentUri
+                    magnetUri
                     , torrentHandle
                     , bencode
                     , torrentSessionBuffer
@@ -150,7 +150,7 @@ class TorrentSession(
         largestFileUri = torrentHandle.getLargestFileUri(torrentSessionOptions.downloadLocation)
         saveLocationUri = Uri.fromFile(torrentSessionOptions.downloadLocation)
         bencode = torrentHandle.getBencode()
-        torrentUri = Uri.parse(torrentHandle.makeMagnetUri())
+        magnetUri = Uri.parse(torrentHandle.makeMagnetUri())
 
         if (torrentSessionOptions.onlyDownloadLargestFile) {
             torrentHandle.ignoreAllFiles()
@@ -373,7 +373,7 @@ class TorrentSession(
         // Session was paused before DHT could become active, retry magnet download.
         if (shouldDownloadMagnetOnResume) {
             downloadUsingMagnetUri(
-                    torrentUri.toString()
+                    magnetUri.toString()
                     , torrentSessionOptions.downloadLocation
             )
         }
