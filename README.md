@@ -93,6 +93,9 @@ android.applicationVariants.all { variant ->
 }
 ```
 
+## Projects using simple-vlc-player
+- [Bit Cast](https://play.google.com/store/apps/details?id=com.masterwok.bitcast)
+
 ## Demo Screenshots
 
 <img src="/app/screenshots/example.jpg?raw=true" height="600" title="Demo">
