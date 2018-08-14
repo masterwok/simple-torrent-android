@@ -93,7 +93,7 @@ android.applicationVariants.all { variant ->
 }
 ```
 
-## Projects using simple-vlc-player
+## Projects using simple-torrent-android
 - [Bit Cast](https://play.google.com/store/apps/details?id=com.masterwok.bitcast)
 
 ## Demo Screenshots
