@@ -33,7 +33,7 @@ torrentSession.listener = object : TorrentSessionListener {
     ) { ... }
 }
 
-torrentSession.start(context, torrentUri) 
+torrentSession.start(context, torrentUri) // Invoke on background thread.
 // OR torrentSession.start(bencodeByteArray)
 
 ```
