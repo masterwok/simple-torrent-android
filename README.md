@@ -2,7 +2,7 @@
 
 # [deprecated] simple-torrent-android
 
-I'm not longer maintaining this project due to time constraints.
+I'm no longer maintaining this project due to time constraints.
 
 An Android torrent client library powered by [frostwire-jlibtorrent](https://github.com/frostwire/frostwire-jlibtorrent). It supports sequential and simultaneous downloads.
 
